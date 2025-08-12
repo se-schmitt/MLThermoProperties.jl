@@ -13,8 +13,7 @@ const R̄32 = Float32(CL.R̄)
 
 # Models
 include("HANNA/hanna.jl")
-include("EOS/model.jl")
-include("EOS/res.jl")
-include("EOS/id.jl")
+include("EOS/romeos.jl")
+include("EOS/romeos_id.jl")
 
 end

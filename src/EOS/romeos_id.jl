@@ -43,22 +43,29 @@ export RoMEoSIdeal
 
 CL.Rgas(::RoMEoSIdeal) = R̄32
 
-function RoMEoSIdeal(fn, smiles, E)
+function RoMEoSIdeal(fn::String, smiles, E; ref_state=nothing)
 
     lmodel, ps, st, _, _ = load_model(fn)
+    smodel = StatefulLuxLayer{true}(lmodel, ps, Lux.testmode(st))
+
+    return RoMEoSIdeal(smodel, smiles, E; ref_state)
+end
+
+function RoMEoSIdeal(smodel::StatefulLuxLayer, smiles, E; ref_state=nothing)
+
+    scaler = MLPROP_EOS.get_scaler(smodel)
 
     # Get parameters (Mw and smiles)
     mol = RDK.get_mol(smiles)
     descs = RDK.get_descriptors(mol)
     params = RoMEoSIdealParam(
-        scale(lmodel.scaler.emb, E),
-        ReferenceState(),
+        scale(scaler.emb, E),
+        Clapeyron.__init_reference_state_kw(ref_state),
         SingleParam("molecular weight",[smiles],Float32[descs["amw"]]),
     )
 
     # Create model
-    smodel = StatefulLuxLayer{true}(lmodel, ps, Lux.testmode(st))
-    model = RoMEoSIdeal([smiles], params, smodel, lmodel.scaler, String[])
+    model = RoMEoSIdeal([smiles], params, smodel, scaler, String[])
 
     return model
 end
