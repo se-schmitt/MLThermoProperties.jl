@@ -1,7 +1,7 @@
 module MLPROP
 
 using Clapeyron, Lux, ConcreteStructs
-using MLPROP_EOS
+using ROMEOSdev
 
 import RDKitMinimalLib
 import DataAndTrainingUtils: scale, unscale, RobustScaler, FixedZeroRobustScaler
