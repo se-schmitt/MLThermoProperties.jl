@@ -1,4 +1,8 @@
 
+
+
+
+
 function M(descs::Dict)
     return get(descs,"exactmw",0)
 end
@@ -34,6 +38,11 @@ end
 
 """
 SEB()
+
+The SEB-modell provides a way to calculate the diffusioncoefficents at infinite dilution in a binary
+mixture utilizing a neural network to boost the results of the Stokes-Einstein-equation.
+
+# Parameters
 
 
 """
