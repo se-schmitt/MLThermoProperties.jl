@@ -56,7 +56,7 @@ struct SEB{M}
   vis_model::M
 end
 
-function SEB(SMILE_i::String,SMILE_j::String)
+function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
     mol_i,mol_j = get_mol(SMILE_i), get_mol(SMILE_j)
     desc_i,desc_j = get_descriptors(mol_i), get_descriptors(mol_j)
     X_i_ini=[M(desc_i);R(desc_i);r_het(desc_i);r_hal(SMILE_i,desc_i);r_acc(desc_i);r_don(desc_i)]
@@ -64,7 +64,18 @@ function SEB(SMILE_i::String,SMILE_j::String)
     MW=M(desc_i)
     #b_ij Berechnung => Modell
     #paramSEB=SEBParam(MW,b_ij)
-    #return SEB([SMILE_i;SMILE_j],paramSEB,(?))
+    #return SEB([SMILE_i;SMILE_j],paramSEB,eta_fun)
 end
 
-export SEB
+function Diffusion(model::SEB,p::Float64,T::Float64)
+
+k_b, roh_i, f, M_i,visc_j,N_A = 1.380649*10^(-23), 1050, 0.64, model.param.M, model.vis_model(T),6.02214076*10^23
+
+D_SEE_ij_infdil = (k_b*T)/(6*pi*visc_j*(((3*f*M_i)/(4*pi*roh_i*N_A))^(1/3)))
+
+return D_SEE_ij_infdil*model.param.b_ij
+
+end
+
+
+export SEB,Diffusion
