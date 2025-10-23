@@ -1,8 +1,4 @@
 
-
-
-
-
 function M(descs::Dict)
     return get(descs,"exactmw",0)
 end
@@ -27,7 +23,6 @@ function r_hal(SMILES::String,descs::Dict)
     end
     return N_h/get(descs,"NumHeavyAtoms",0)
 end
-
 
 struct SEBParam
     "Molar mass in `kg/mol`"
@@ -55,7 +50,6 @@ mixture utilizing a neural network to boost the results of the Stokes-Einstein-e
 
 """
 
-
 struct SEB{M}
   components::Vector#{<AbstractString}
   param::SEBParam
@@ -68,7 +62,9 @@ function SEB(SMILE_i::String,SMILE_j::String)
     X_i_ini=[M(desc_i);R(desc_i);r_het(desc_i);r_hal(SMILE_i,desc_i);r_acc(desc_i);r_don(desc_i)]
     X_j_ini=[M(desc_j);R(desc_j);r_het(desc_j);r_hal(SMILE_j,desc_j);r_acc(desc_j);r_don(desc_j)]
     MW=M(desc_i)
-    #b_ij Berechnung
+    #b_ij Berechnung => Modell
     #paramSEB=SEBParam(MW,b_ij)
-    #return SEB(,)
+    #return SEB([SMILE_i;SMILE_j],paramSEB,(?))
 end
+
+export SEB
