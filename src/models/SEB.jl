@@ -63,8 +63,8 @@ function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
     X_j_ini=[M(desc_j);R(desc_j);r_het(desc_j);r_hal(SMILE_j,desc_j);r_acc(desc_j);r_don(desc_j)]
     MW=M(desc_i)
     #b_ij Berechnung => Modell
-    b_ij=20
-    paramSEB=SEBParam(MW,b_ij)
+    #b_ij=20
+    #paramSEB=SEBParam(MW,b_ij)
     return SEB([SMILE_i;SMILE_j],paramSEB,eta_fun)
 end
 
