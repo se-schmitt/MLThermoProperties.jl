@@ -64,6 +64,8 @@ function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
     MW=M(desc_i)
     #b_ij Berechnung => Modell
     #b_ij=20
+    NN-nopara = Chain(Dense(10 => 32, relu),Dense(32 => 16, relu),Dense( 16 => 1, softplus))
+    
     #paramSEB=SEBParam(MW,b_ij)
     return SEB([SMILE_i;SMILE_j],paramSEB,eta_fun)
 end
