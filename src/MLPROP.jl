@@ -1,6 +1,6 @@
 module MLPROP
 
-using Clapeyron, Lux, ConcreteStructs
+using Clapeyron, Lux, ConcreteStructs,JLD2
 #using ROMEOSdev
 
 using RDKitMinimalLib

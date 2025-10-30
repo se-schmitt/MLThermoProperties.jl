@@ -83,7 +83,7 @@ function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
     #setup()
 
     paramSEB=SEBParam(MW,b_ij_mean)
-    
+
 
     return SEB([SMILE_i;SMILE_j],paramSEB,eta_fun)
 end
