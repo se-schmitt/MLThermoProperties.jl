@@ -56,19 +56,35 @@ struct SEB{M}
 end
 
 function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
+    @load "src/models/weights_bias.jld2"
     mol_i,mol_j = get_mol(SMILE_i), get_mol(SMILE_j)
     desc_i,desc_j = get_descriptors(mol_i), get_descriptors(mol_j)
     X_i_ini=[M(desc_i);R(desc_i);r_het(desc_i);r_hal(SMILE_i,desc_i);r_acc(desc_i);r_don(desc_i)]
     X_j_ini=[M(desc_j);R(desc_j);r_het(desc_j);r_hal(SMILE_j,desc_j);r_acc(desc_j);r_don(desc_j)]
-    NN-input=Tuple(collect(vcat(X_i_ini,X_j_ini)))
+    input=vcat(X_i_ini,X_j_ini)
     MW=M(desc_i)
 
     #b_ij Berechnung => Modell
-    #b_ij=20
-    NN-nopara = Chain(Dense(10 => 32, relu),Dense(32 => 16, relu),Dense( 16 => 1, softplus))
+    b_ij=0
+    b_ij_sum=0
+    NN = Chain(Dense(12 => 32, relu),Dense(32 => 16, relu),Dense( 16 => 1, softplus))
+    #keys=["SEB_3";"SEB_7";"SEB_9";"SEB_12";"SEB_17";"SEB_19";"SEB_33";"SEB_42";"SEB_49";"SEB_55"]
+    for wb in keys(Weights_Bias_SEB)
+        st=(layer_1=NamedTuple(),layer_2=NamedTuple(),layer_3=NamedTuple())
+        ps=((layer_1=(weight=wb[2],bias=vec(wb[1]))),
+        (layer_2=(weight=wb[4],bias=vec(wb[3]))),
+        (layer_3=(weight=wb[6],bias=vec(wb[5]))))
+
+        st, b_ij = NN(input,ps,st_0)
+        b_ij_sum = b_ij_sum+b_ij
+
+    end
+    b_ij_mean=b_ij/10
     #setup()
 
-    #paramSEB=SEBParam(MW,b_ij)
+    paramSEB=SEBParam(MW,b_ij_mean)
+    
+
     return SEB([SMILE_i;SMILE_j],paramSEB,eta_fun)
 end
 
