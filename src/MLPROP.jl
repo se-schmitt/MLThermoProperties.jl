@@ -11,6 +11,8 @@ const RDK = RDKitMinimalLib
 
 const R̄32 = Float32(CL.R̄)
 
+const DB_PATH = normpath(Base.pkgdir(MLPROP),"database")
+
 # Models
 include("HANNA/hanna.jl")
 include("EOS/romeos.jl")

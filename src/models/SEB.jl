@@ -56,7 +56,8 @@ struct SEB{M}
 end
 
 function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
-    @load "src/models/weights_bias.jld2"
+    path_nn_parameters = joinpath(DB_PATH, "SEB", "nn_parameters.jld2")
+    nn_parameters = load(path_nn_parameters)["Weights_Bias_SEB"]
     mol_i,mol_j = get_mol(SMILE_i), get_mol(SMILE_j)
     desc_i,desc_j = get_descriptors(mol_i), get_descriptors(mol_j)
     X_i_ini=[M(desc_i);R(desc_i);r_het(desc_i);r_hal(SMILE_i,desc_i);r_acc(desc_i);r_don(desc_i)]
@@ -69,8 +70,7 @@ function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
     b_ij_sum=0
     NN = Chain(Dense(12 => 32, relu),Dense(32 => 16, relu),Dense( 16 => 1, softplus))
     #keys=["SEB_3";"SEB_7";"SEB_9";"SEB_12";"SEB_17";"SEB_19";"SEB_33";"SEB_42";"SEB_49";"SEB_55"]
-    for key in keys(Weights_Bias_SEB)
-        wb=get(Weights_Bias_SEB,key,0)
+    for (key,wb) in nn_parameters
         st_0=(layer_1=NamedTuple(),layer_2=NamedTuple(),layer_3=NamedTuple())
         ps=((layer_1=(weight=wb[2],bias=vec(wb[1]))),
         (layer_2=(weight=wb[4],bias=vec(wb[3]))),
