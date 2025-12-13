@@ -33,7 +33,14 @@ function map_state_dict!(ps, sd; ftype=Float32)
     # paths = create_path.(ks)
 
     for ((k_py,v), k) in zip(_sd, ks)
-        P = ftype.(first(v) isa AbstractArray ? hcat(v...)' : vcat(v...))
+        if v isa AbstractArray
+            P = ftype.(v)
+            if endswith(k, "weight") && occursin("embed", k) && ndims(P) == 2
+                P = permutedims(P, (2, 1))
+            end
+        else
+            P = ftype.(first(v) isa AbstractArray ? hcat(v...)' : vcat(v...))
+        end
         pth = create_path(k)
         setpath!(ps, pth, P)
     end

@@ -24,7 +24,7 @@ ConcreteStructs = "0.2.3"
 Lux = "1.16.0"
 RDKitMinimalLib = "1"
 Reactant = "0.2.169"
-julia = "~1.11"
+julia = "1.11"
 
 [extras]
 ChemBERTa = "c6d5ccb6-415a-469b-bc0e-e5c43fa6df39"
