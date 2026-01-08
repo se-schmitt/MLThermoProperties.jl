@@ -1,10 +1,8 @@
 module MLPROP
 
 using Clapeyron, Lux, ConcreteStructs
-using ROMEOSdev
 
 import RDKitMinimalLib
-import CustomScalersSchedulers: scale, unscale, RobustScaler, FixedZeroRobustScaler
 
 const CL = Clapeyron
 const RDK = RDKitMinimalLib
