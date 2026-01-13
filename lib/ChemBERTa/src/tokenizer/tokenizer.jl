@@ -38,5 +38,3 @@ container_eltype(::Type{<:Batch{Batch{Batch{T}}}}) where T<:SentenceStage = Vect
 container_reducef(::Type{<:Batch}) = push!
 container_f(::T) where T = (container_reducef(T), MutableLinkedList{container_eltype(T)}())
 
-TextEncodeBase.tokenize(tkr::TextTokenizer, p::ParentStages, t::AbstractTokenization, x::Batch) =
-    collect(TextEncodeBase.tokenize_procedure!(container_f(x)..., tkr, p, t, x))

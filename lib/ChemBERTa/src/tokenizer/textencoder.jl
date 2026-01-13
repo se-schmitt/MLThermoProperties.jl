@@ -111,36 +111,6 @@ for name in fieldnames(TrfTextEncoder)
     end)
 end
 
-"""
-    set_tokenizer(builder, e::TrfTextEncoder)
-
-Return a new text encoder with the `tokenizer` field replaced with `builder(e)`. `builder` can either return
- a `AbstractTokenizer` or a `AbstractTokenization`.
-"""
-function set_tokenizer(builder, e::TrfTextEncoder)
-    new_tkr = builder(e)
-    if !(new_tkr isa AbstractTokenizer)
-        new_tkr = TextTokenizer(new_tkr)
-    end
-    return setproperty!!(e, :tokenizer, new_tkr)
-end
-
-"""
-    set_vocab(builder, e::TrfTextEncoder)
-
-Return a new text encoder with the `vocab` field replaced with `builder(e)`. `builder` can either return
- a `AbstractVocabulary{String}` or a `AbstractVector{String}`.
-"""
-function set_vocab(builder, e::TrfTextEncoder)
-    new_vocab = builder(e)
-    if !(new_vocab isa AbstractVocabulary)
-        new_vocab = Vocab(new_vocab, e.vocab.unk)
-    end
-    return TrfTextEncoder(
-        getfield(e, :tokenizer), new_vocab, getfield(e, :config),
-        getfield(e, :annotate), getfield(e, :process), getfield(e, :onehot),
-        getfield(e, :decode), getfield(e, :textprocess))
-end
 
 TrfTextEncoder(builder, e::TrfTextEncoder) = set_process(builder, e)
 
@@ -189,56 +159,29 @@ function lookup_first(e::TrfTextEncoder, x::NamedTuple{name}) where name
 end
 
 # encoder constructor
-
-const WList = Union{AbstractVector, AbstractVocabulary}
-
-function TransformerTextEncoder(tkr::AbstractTokenizer, vocab::AbstractVocabulary{String}, process,
-                                startsym::String, endsym::String, padsym::String, trunc::Union{Nothing, Int})
-    return TrfTextEncoder(
-        tkr, vocab,
-        @NamedTuple{startsym::String, endsym::String, padsym::String, trunc::Union{Nothing, Int}}(
-            (startsym, endsym, padsym, trunc)),
-        annotate_strings,
-        process,
-        lookup_first,
-        identity,
-        join_text,
-    )
-end
-
-TransformerTextEncoder(tokenizef, v::WList, args...; kws...) =
-    TransformerTextEncoder(WordTokenization(tokenize=tokenizef), v, args...; kws...)
-TransformerTextEncoder(v::WList, args...; kws...) = TransformerTextEncoder(TextTokenizer(), v, args...; kws...)
-TransformerTextEncoder(t::AbstractTokenization, v::WList, args...; kws...) =
-    TransformerTextEncoder(TextTokenizer(t), v, args...; kws...)
-
-TransformerTextEncoder(tkr::AbstractTokenizer, v::WList, args...; kws...) =
-    throw(MethodError(TransformerTextEncoder, (tkr, v, args...)))
-
-function TransformerTextEncoder(tkr::AbstractTokenizer, words::AbstractVector, process; trunc = nothing,
-                                startsym = "<s>", endsym = "</s>", unksym = "<unk>", padsym = "<pad>")
+function TransformerTextEncoder(tokenizef, words; trunc = nothing, startsym = "<s>", endsym = "</s>", unksym = "<unk>", padsym = "<pad>")
+    fixedsize = false
+    trunc_end = :tail
+    pad_end = :tail
+    
+    tkr = TextTokenizer(WordTokenization(tokenize=tokenizef))
     vocab_list = copy(words)
     for sym in (padsym, unksym, startsym, endsym)
         sym ∉ vocab_list && push!(vocab_list, sym)
     end
     vocab = Vocab(vocab_list, unksym)
-    return TransformerTextEncoder(tkr, vocab, process, startsym, endsym, padsym, trunc)
-end
+    enc = TrfTextEncoder(
+        tkr, vocab,
+        @NamedTuple{startsym::String, endsym::String, padsym::String, trunc::Union{Nothing, Int}}(
+            (startsym, endsym, padsym, trunc)),
+        annotate_strings,
+        identity,
+        lookup_first,
+        identity,
+        join_text,
+    )
 
-function TransformerTextEncoder(tkr::AbstractTokenizer, vocab::AbstractVocabulary, process; trunc = nothing,
-                                startsym = "<s>", endsym = "</s>", unksym = "<unk>", padsym = "<pad>")
-    check_vocab(vocab, startsym) || @warn "startsym $startsym not in vocabulary, this might cause problem."
-    check_vocab(vocab, endsym) || @warn "endsym $endsym not in vocabulary, this might cause problem."
-    check_vocab(vocab, unksym) || @warn "unksym $unksym not in vocabulary, this might cause problem."
-    check_vocab(vocab, padsym) || @warn "padsym $padsym not in vocabulary, this might cause problem."
-    return TransformerTextEncoder(tkr, vocab, process, startsym, endsym, padsym, trunc)
-end
-
-function TransformerTextEncoder(tkr::AbstractTokenizer, v::WList;
-                                fixedsize = false, trunc_end = :tail, pad_end = :tail, kws...)
-    enc = TransformerTextEncoder(tkr, v, identity; kws...)
-    # default processing pipeline
-    return TransformerTextEncoder(enc) do e
+    builder(e) = begin
         truncf = get_trunc_pad_func(e.padsym, fixedsize, e.trunc, trunc_end, pad_end)
         maskf = get_mask_func(e.trunc, :tail)
         # get token and convert to string
@@ -256,6 +199,6 @@ function TransformerTextEncoder(tkr::AbstractTokenizer, v::WList;
             # return token and mask
             PipeGet{(:token, :attention_mask, :sequence_mask)}()
     end
-end
 
-TransformerTextEncoder(builder, e::TrfTextEncoder) = TrfTextEncoder(builder, e)
+    return TrfTextEncoder(builder, enc)
+end
