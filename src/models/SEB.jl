@@ -50,14 +50,14 @@ mixture utilizing a neural network to boost the results of the Stokes-Einstein-e
 
 # Parameters
 
-'components'
+'components'::vector[2x1] Vector containing SMILES of solute and solution
 
-'param'
+'param': M::float64 Molar mass of solute in kg/mol
+         b_ij::float64 Boostingfactor for SE-Equation
 
-'vis_model'
+'vis_model'::func(T) Function for modelling dynamic Viscosity of solution
 
-# Constructor(?)
-
+# Constructor SEB(SMILE_i::String,SMILE_j::String,vis_model)
 
 """
 struct SEB{M}
@@ -119,7 +119,15 @@ function SEB(SMILE_i::String,SMILE_j::String,eta_fun)
 end
 
 Base.broadcastable(x::SEB) = Ref(x)
-
+"""
+Diffusion
+Diffusion calculates the diffusioncoefficent, using the Stokes-Einstein-equation and multiplying 
+the result with the Boostingfactor
+#Parameters
+'model': Constructed SEB-model (see above)
+'p': Pressure in Pa
+'T': Temperature in Kelvin
+"""
 function Diffusion(model::SEB,p,T)
     # Initialitzing constants required for Stokes-Einstein-equation
     k_b = 1.380649e-23
