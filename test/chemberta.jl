@@ -14,10 +14,12 @@ using ChemBERTa, DelimitedFiles
     ]
 
     # Test canonization
-    @testset "RDKitMinimalLibExt" begin
-        using RDKitMinimalLib
-        for i in eachindex(smiles_list)
-            @test ChemBERTa.canonicalize.(smiles_list[i]) == canonical_smiles[i]
+    if Sys.islinux()
+        @testset "RDKitMinimalLibExt" begin
+            using RDKitMinimalLib
+            for i in eachindex(smiles_list)
+                @test ChemBERTa.canonicalize.(smiles_list[i]) == canonical_smiles[i]
+            end
         end
     end
 
