@@ -1,9 +1,9 @@
 module RDKitMinimalLibExt
 
+using ChemBERTa
 using RDKitMinimalLib: RDKitMinimalLib as RDK
-using ChemBERTa: ChemBERTa as CB
 
-function CB.canonicalize(smiles)
+function ChemBERTa.canonicalize(smiles::AbstractString; is_canonical=false)
     return RDK.get_smiles(RDK.get_mol(smiles))
 end
 

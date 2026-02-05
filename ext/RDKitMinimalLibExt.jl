@@ -1,7 +1,7 @@
 module RDKitMinimalLibExt
 
+using MLPROP
 using RDKitMinimalLib: RDKitMinimalLib as RDK
-using MLPROP: MLPROP as MLP
 
 
 

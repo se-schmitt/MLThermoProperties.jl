@@ -3,3 +3,4 @@ scripts
 .vscode
 __pycache__
 .venv
+.CondaPkg
