@@ -24,8 +24,6 @@ See XY for details.
 """
 module ChemBERTa
 
-CANONICALIZE_COUNT = 0
-
 using DataStructures: OrderedDict
 using ConcreteStructs, JSON, Random, SafeTensors
 

@@ -21,10 +21,12 @@ TextEncodeBase = "f92c20c0-9f2a-4705-8116-881385faba05"
 Tricks = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
 
 [weakdeps]
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 RDKitMinimalLib = "44044271-7623-48dc-8250-42433c44e4b7"
 
 [extensions]
 RDKitMinimalLibExt = "RDKitMinimalLib"
+PythonCallExt = "PythonCall"
 
 [compat]
 BangBang = "0.4.6"
