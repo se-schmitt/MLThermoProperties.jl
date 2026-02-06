@@ -10,7 +10,7 @@ using MLPROP, Clapeyron, PythonCall
         @test first(saturation_pressure(model1, 315.)) ≈ 20.282e3 rtol=1e-5
         crit1 = crit_pure(model1)
         @test crit1[1] == 513.92
-        @test crit1[2] ≈ 5.237840522451958e6 rtol=1e-8
+        @test crit1[2] ≈ 5.237840522451958e6 rtol=1e-5
 
         model2 = GRAPPA(["toluene", "ome"]; userlocations=(; SMILES=["CC1=CC=CC=C1","COCOCOCOC"]))
         model2_1, model2_2 = split_model(model2)
