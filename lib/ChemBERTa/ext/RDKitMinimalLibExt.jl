@@ -4,7 +4,7 @@ using ChemBERTa
 using RDKitMinimalLib: RDKitMinimalLib as RDK
 
 function __init__()
-    if Base.get_extension(Main.ChemBERTa, :PythonCallExt) isa Module
+    if isdefined(Main, :ChemBERTa) && Base.get_extension(Main.ChemBERTa, :PythonCallExt) isa Module
         @warn """
         Function `ChemBERTa.canonicalize` defined by `RDKitMinimalLibExt` and `PythonCallExt`!
         `RDKitMinimalLibExt` is used.
