@@ -1,4 +1,4 @@
-using MLPROP, Clapeyron, PythonCall, JLD2
+using MLPROP, Clapeyron, PythonCall, JLD2, EntropyScaling
 
 @testset "Models" begin
     @testset "GRAPPA" begin
@@ -31,22 +31,29 @@ using MLPROP, Clapeyron, PythonCall, JLD2
         p_iso = 1e5
         
         validation_data=Dict(
-        [
-        ("299.16",[1.6482543537961485;0.931919139410536;2.2720926704344366;2.1565516995619975]),
-        ("319.16",[2.398242890812778;1.499678069198921;3.4423174568853114;3.4051672004992155]),
-        ("330.16",[2.8835049909007537;1.883458270815633;4.266043969220459;4.233824652227727]),
-        ("335.16",[3.1220121860028516;2.0752810400719994;4.689285161702368;4.643207359176968]),
-        ("345.16",[3.633999694982114;2.4922799695456694;5.636959093505703;5.521765504779055])
-        ]
+            [
+                ("299.16",[1.6482543537961485;0.931919139410536;2.2720926704344366;2.1565516995619975]),
+                ("319.16",[2.398242890812778;1.499678069198921;3.4423174568853114;3.4051672004992155]),
+                ("330.16",[2.8835049909007537;1.883458270815633;4.266043969220459;4.233824652227727]),
+                ("335.16",[3.1220121860028516;2.0752810400719994;4.689285161702368;4.643207359176968]),
+                ("345.16",[3.633999694982114;2.4922799695456694;5.636959093505703;5.521765504779055])
+            ]
         )
 
-        #TODO remove jld load of functions
         Tx = [299.16;319.16;330.16;335.16;345.16]
-        funs = load("Viscosityfunctions.jld2")
-        η_fun_water = funs["η_fun_water"]
-        η_fun_ethanol = funs["η_fun_ethanol"]
-        η_fun_hexadecane = funs["η_fun_hexadecane"]
-        η_fun_dodecane = funs["η_fun_dodecane"]
+        
+        η_model_dodecane = RefpropRESModel("dodecane")
+        η_fun_dodecane = T -> viscosity(η_model_dodecane, 1e5, T)
+
+        η_model_hexadecane= RefpropRESModel("hexadecane")
+        η_fun_hexadecane = T -> viscosity(η_model_hexadecane, 1e5, T)
+
+        η_model_ethanol = RefpropRESModel("ethanol")
+        η_fun_ethanol = T -> viscosity(η_model_ethanol, 1e5, T)
+
+        η_model_water = RefpropRESModel("water")
+        η_fun_water = T -> viscosity(η_model_water, 1e5, T)
+
         model_diolane_hexadecane=SEB("C1OCOC1","CCCCCCCCCCCCCCCC",η_fun_hexadecane)
         model_Acetonitrile_ethanol=SEB("CC#N","CCO",η_fun_ethanol)
         model_Carbondioxide_water=SEB("O=C=O","O",η_fun_water)
