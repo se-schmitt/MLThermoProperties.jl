@@ -1,15 +1,3 @@
-module HANNA
-
-using Clapeyron
-using Lux
-using Random
-using CSV
-using LinearAlgebra
-using DelimitedFiles
-using ChemBERTa
-
-import Clapeyron: activity_coefficient, excess_gibbs_free_energy, split_model, each_split_model, EoSParam, EoSVectorParam, ActivityModel, SingleParam, EoSModel, init_puremodel
-
 # Help Functions ---------------------------------------------------------------------------
 silu(x) = @. x/(1+exp(-x))
 
@@ -94,7 +82,7 @@ end
 # Help Functions - END------------------------------------------------------------
 
 # Parameter Structure
-struct HANNAParam <: EoSParam
+struct HANNAParam <: CL.EoSParam
     smiles::SingleParam{String}        
     emb_scaled::Vector{Vector{Float64}}
     T_scaler::Function
@@ -110,13 +98,13 @@ end
 const N_EMB = 384
 const N_NODES = 96
 
-function Clapeyron.split_model(param::HANNAParam, splitter)
-    return [Clapeyron.each_split_model(param, i) for i ∈ splitter]
+function CL.split_model(param::HANNAParam, splitter)
+    return [CL.each_split_model(param, i) for i ∈ splitter]
 end
 
-function Clapeyron.each_split_model(param::HANNAParam, i)
-    Mw = Clapeyron.each_split_model(param.Mw, i)
-    smiles = Clapeyron.each_split_model(param.smiles, i)
+function CL.each_split_model(param::HANNAParam, i)
+    Mw = CL.each_split_model(param.Mw, i)
+    smiles = CL.each_split_model(param.smiles, i)
     
     emb_subset = param.emb_scaled[i]
     if !isa(emb_subset, Vector{Vector{Float64}})
@@ -128,21 +116,19 @@ function Clapeyron.each_split_model(param::HANNAParam, i)
 end
 
 # Model definition
-abstract type HANNAModel <: ActivityModel 
+abstract type HANNAModel <: CL.ActivityModel 
 end
 
 # Model Structure
-struct HANNA{c<:EoSModel} <: HANNAModel
+struct HANNA{c<:CL.EoSModel} <: HANNAModel
     components::Array{String,1}
     params::HANNAParam
-    puremodel::EoSVectorParam{c}
+    puremodel::CL.EoSVectorParam{c}
     references::Array{String,1}
 end
 
-#export HANNA
-#path_to_props = joinpath(@__DIR__, "data", "properties")
 CL.default_locations(::Type{HANNA}) = ["properties/identifiers.csv", "properties/molarmass.csv"]
-# Main HANNA function 
+# Main HANNA function --------------------------------------------
 function HANNA(components::Vector{String};
         puremodel = BasicIdeal,
         userlocations = String[],
@@ -153,7 +139,7 @@ function HANNA(components::Vector{String};
     DB_PATH = joinpath(@__DIR__, "data") 
 
     # Get parameters (Mw and smiles)
-    params = CL.getparams(components,default_locations(HANNA);userlocations=userlocations,ignore_headers=["dipprnumber","inchikey","cas"])
+    params = CL.getparams(components,CL.default_locations(HANNA);userlocations=userlocations,ignore_headers=["dipprnumber","inchikey","cas"])
 
     # Load ChemBERTa model
     bert = ChemBERTa.load()
@@ -186,17 +172,17 @@ function HANNA(components::Vector{String};
 
     params = HANNAParam(params["canonicalsmiles"], emb_scaled, T_scaler, theta, alpha, phi, params["Mw"])
     
-    _puremodel = init_puremodel(puremodel, components, pure_userlocations, verbose)
+    _puremodel = CL.init_puremodel(puremodel, components, pure_userlocations, verbose)
     references = String["10.1039/D4SC05115G"]
     model = HANNA(components, params, _puremodel, references)
-    Clapeyron.set_reference_state!(model,reference_state,verbose = verbose)
+    CL.set_reference_state!(model,reference_state,verbose = verbose)
 
     #println("SMILES im Modell: ", model.params.smiles.values)
     return model
 end
 
 
-function Clapeyron.excess_gibbs_free_energy(model::HANNA, p, T, z)
+function CL.excess_gibbs_free_energy(model::HANNA, p, T, z)
     x = z ./ sum(z)
     #Alias
     params = model.params
@@ -229,4 +215,3 @@ function Clapeyron.excess_gibbs_free_energy(model::HANNA, p, T, z)
     end
     return gE * Rgas(model) * T * sum(z)
 end
-end #modul
