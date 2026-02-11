@@ -5,7 +5,7 @@ using Clapeyron, Lux, ConcreteStructs, ChemBERTa, LinearAlgebra, DelimitedFiles,
 const CL = Clapeyron
 
 # Models
-include("HANNA.jl")
+include("HANNA_legacy.jl")
 
 
 end

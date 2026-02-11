@@ -78,7 +78,6 @@ function build_lux_chain(layers, paths_w, paths_b)
     return LuxNetwork(model, ps_loaded, st)
 end
 
-
 # Help Functions - END------------------------------------------------------------
 
 # Parameter Structure
