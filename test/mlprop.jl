@@ -1,7 +1,7 @@
-using MLPROP, Clapeyron, PythonCall
+using MLPROP, Clapeyron, PythonCall, ChemBERTa
 
 @testset "Models" begin
-    include("hanna_legacy.jl")
+    include("test_hanna.jl")
 
     @testset "GRAPPA" begin
         # Compare to https://ml-prop.mv.rptu.de

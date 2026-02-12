@@ -1,5 +1,5 @@
-include("layers.jl")
-include("HANNA_legacy/hanna_legacy.jl")
+include("ogHANNA/layers.jl")
+include("ogHANNA/oghanna.jl")
 
 # Utils 
 silu(x) = @. x/(1+exp(-x))

@@ -1,10 +1,10 @@
-@concrete struct LuxHANNA <: AbstractLuxContainerLayer{(:theta,:alpha,:phi)}
+@concrete struct ogHANNALux <: AbstractLuxContainerLayer{(:theta,:alpha,:phi)}
     theta
     alpha
     phi
 end
 
-function (model::LuxHANNA)((T,x,embs), ps, st)
+function (model::ogHANNALux)((T,x,embs), ps, st)
     θs = first(model.theta(embs, ps.theta, st.theta))
     
     # Calculate cosine similarity and distance between the two components

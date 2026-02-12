@@ -75,8 +75,8 @@ class HANNA(nn.Module):
         return ln_gammas, gE
 
 def load_model_and_scaler(base_dir, device):
-    model_path = os.path.join(base_dir, "HANNA_legacy_Val.pt")
-    scaler_path = os.path.join(base_dir, "scalerHANNA_legacy_Val.pkl")
+    model_path = os.path.join(base_dir, "ogHANNA_Val.pt")
+    scaler_path = os.path.join(base_dir, "scaler_ogHANNA_Val.pkl")
 
     model = HANNA().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
@@ -123,7 +123,7 @@ def main():
     temperature = 300.0
     x1 = 0.5
 
-    print("REFERENCE (PYTHON ORIGINAL (HANNA_LEGACY))")
+    print("REFERENCE (PYTHON ORIGINAL (ogHANNA))")
     print(f"T = {temperature} K, x1 = {x1}")
 
     for smiles_1, smiles_2 in systems:
