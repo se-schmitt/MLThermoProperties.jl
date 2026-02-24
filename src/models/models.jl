@@ -4,7 +4,7 @@ include("grappa.jl")
 include("HANNA/hanna.jl")
 
 # Show method
-const MLPROP_MODELS = Union{GRAPPA, ogHANNA}
+const MLPROP_MODELS = Union{GRAPPA, ogHANNA, multHANNA}
 function Base.show(io::IO, mime::MIME"text/plain", model::MLPROP_MODELS)
     print(io, nameof(typeof(model)))
     length(model) == 1 && println(io, " with 1 component:")

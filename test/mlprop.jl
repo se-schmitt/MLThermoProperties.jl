@@ -2,6 +2,7 @@ using MLPROP, Clapeyron, PythonCall, ChemBERTa
 
 @testset "Models" begin
     include("test_hanna.jl")
+    include("test_multHANNA.jl")
 
     @testset "GRAPPA" begin
         # Compare to https://ml-prop.mv.rptu.de
