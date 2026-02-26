@@ -31,9 +31,43 @@ struct multHANNA{c<:CL.EoSModel,T,P,S} <: multHANNAModel
 end
 
 """
-## Explanation
+    multHANNA <: ActivityModel
+
+    multHANNA(components;
+    puremodel = nothing,
+    userlocations = String[],
+    pure_userlocations = String[],
+    verbose = false,
+    reference_state = nothing)
+
+## Input parameters
+- `SMILES`: canonical SMILES (using RDKit) representation of the components
+- `Mw`: Single Parameter (`Float64`) (Optional) - Molecular Weight `[g·mol⁻¹]`
+
+## Input models
+- `puremodel`: model to calculate pure pressure-dependent properties
+
+## Description
+Hard-Constraint Neural Network for Consistent Activity Coefficient Prediction (HANNA v1.0.0).
+The implementation is based on [this](https://github.com/tspecht93/HANNA) Github repository.
+`multHANNA` was trained on all available binary VLE data (up to 10 bar) and limiting activity coefficients from the Dortmund Data Bank. `multHANNA` was only developed for binary mixtures. Use `HANNA` for multicomponent mixtures.
+
 ## Example
+```julia
+using MLPROP, Clapeyron
+
+components = ["water","isobutanol"]
+Mw = [18.01528, 74.1216]
+smiles = ["O", "CC(C)CO"]
+
+model = multHANNA(components,userlocations=(;Mw=Mw, SMILWS=smiles))
+# model = multHANNA(components) # also works if components are in the database 
+```
+
+## References
+1. .
 """
+multHANNA   #TODO revise docstring
 
 CL.default_locations(::Type{multHANNA}) = ["properties/identifiers.csv", "properties/molarmass.csv"]
 get_model_path(::Type{multHANNA}) = joinpath(DB_PATH, "multHANNA")
@@ -52,7 +86,6 @@ function multHANNA(components;
     _params = CL.getparams(components,CL.default_locations(multHANNA);
         userlocations,ignore_headers=["dipprnumber","inchikey","cas"], ignore_missing_singleparams=["canonicalsmiles", "Mw"])
 
-    length(_components) < 3 && @warn "`ogHANNA` might be more recommended for binary systems. Proceeding with `multHANNA`..."
     smiles = [
         _params["canonicalsmiles"].ismissingvalues[i] ?
         ChemBERTa.canonicalize.(_params["SMILES"].values[i]) :
