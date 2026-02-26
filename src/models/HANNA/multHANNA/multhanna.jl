@@ -64,18 +64,19 @@ function multHANNA(components;
     N_NODES = 96
     
     nn = multHANNALux(
-        # theta
-        Chain(LipschitzDense(N_EMB, N_NODES), silu),
-        # alpha
-        Chain(LipschitzDense(N_NODES + 2, N_NODES), silu, 
-            LipschitzDense(N_NODES, N_NODES), silu),
-        # phi
-        Chain(LipschitzDense(N_NODES, N_NODES), silu, 
-            LipschitzDense(N_NODES, 1))
+        LipschitzDense(N_EMB, N_NODES, silu),   # theta
+        Chain(                                  # alpha
+            LipschitzDense(N_NODES + 2, N_NODES, silu),
+            LipschitzDense(N_NODES, N_NODES, silu)
+        ),
+        Chain(                                  # phi    
+            LipschitzDense(N_NODES, N_NODES, silu),
+            LipschitzDense(N_NODES, 1, identity)
+        )
     )
     
     # load parameters and scalers
-    ps, st = load(joinpath(get_model_path(multHANNA),"parameters_states_all.jld2"), "ps", "st")
+    ps, st = load(joinpath(get_model_path(multHANNA),"parameters_states_ensemble.jld2"), "ps", "st")
     scaler_T =   load_scaler(joinpath(get_model_path(multHANNA), "scaler_T.jld2"))
     scaler_emb = load_scaler(joinpath(get_model_path(multHANNA), "scaler_emb.jld2"))
 
