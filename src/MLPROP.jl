@@ -13,6 +13,9 @@ const DB_PATH = normpath(Base.pkgdir(MLPROP),"database")
 
 BERT = nothing
 
+# Layers
+include("layers/layers.jl")
+
 # Models
 include("models/models.jl")
 
