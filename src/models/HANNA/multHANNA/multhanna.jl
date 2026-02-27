@@ -119,7 +119,7 @@ function multHANNA(components;
     end
     emb = hcat(BERT.(smiles; is_canonical=true)...)
 
-    params = multHANNAParam(scale(scaler_emb, emb), scaler_T, nn, ps, st, _params["Mw"], 100.0)
+    params = multHANNAParam(scale(scaler_emb, emb), scaler_T, nn, ps, Lux.testmode.(st), _params["Mw"], 100.0)
     _puremodel = CL.init_puremodel(puremodel, components, pure_userlocations, verbose)
     references = String["10.48550/arXiv.2509.06484"]
 
