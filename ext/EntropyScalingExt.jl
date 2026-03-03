@@ -10,11 +10,11 @@ function MLPROP.SEB(components, es_model::ES.AbstractEntropyScalingModel; p=1e5,
     return SEB(components, wrapper; kwargs...)
 end
 
-struct ESModelWrapper
-    model
-    p
+struct ESModelWrapper{M,T}
+    model::M
+    p::T
 end
-function (wrapper::ESModelWrapper)(T)
+function (wrapper::ESModelWrapper{M,_T})(T) where {M,_T}
     return viscosity(wrapper.model, wrapper.p, T)
 end
 
