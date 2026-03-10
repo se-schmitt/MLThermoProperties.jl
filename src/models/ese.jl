@@ -82,17 +82,7 @@ end
 
 Base.broadcastable(x::ESE) = Ref(x)
 
-#TODO use functions from EntropyScaling
-"""
-Diffusion
-Diffusion calculates the diffusioncoefficent, using the Stokes-Einstein-equation and multiplying 
-the result with the Boostingfactor
-#Parameters
-'model': Constructed ESE-model (see above)
-'p': Pressure in Pa
-'T': Temperature in Kelvin
-"""
-function Diffusion(model::ESE, p, T)
+function ES.inf_diffusion_coefficient(model::ESE, p, T, z=ES.Z1; phase=:unknown, solute=nothing, solvent=nothing)
     # Initialitzing constants required for Stokes-Einstein-equation
     k_b = 1.380649e-23
     roh_i= 1050
@@ -107,4 +97,4 @@ function Diffusion(model::ESE, p, T)
 end
 
 
-export ESE,Diffusion
+export ESE
