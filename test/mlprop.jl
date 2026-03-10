@@ -27,7 +27,7 @@ using MLPROP, Clapeyron, PythonCall, JLD2, EntropyScaling
     end
 
     #TODO revise tests
-    @testset "SEB" begin
+    @testset "ESE" begin
         p_iso = 1e5
         
         validation_data=Dict(
@@ -54,10 +54,10 @@ using MLPROP, Clapeyron, PythonCall, JLD2, EntropyScaling
         η_model_water = RefpropRESModel("water")
         η_fun_water = T -> viscosity(η_model_water, 1e5, T)
 
-        model_diolane_hexadecane=SEB("C1OCOC1","CCCCCCCCCCCCCCCC",η_fun_hexadecane)
-        model_Acetonitrile_ethanol=SEB("CC#N","CCO",η_fun_ethanol)
-        model_Carbondioxide_water=SEB("O=C=O","O",η_fun_water)
-        model_methylal_dodecane=SEB("COCOC","CCCCCCCCCCCC",η_fun_dodecane)
+        model_diolane_hexadecane=ESE("C1OCOC1","CCCCCCCCCCCCCCCC",η_fun_hexadecane)
+        model_Acetonitrile_ethanol=ESE("CC#N","CCO",η_fun_ethanol)
+        model_Carbondioxide_water=ESE("O=C=O","O",η_fun_water)
+        model_methylal_dodecane=ESE("COCOC","CCCCCCCCCCCC",η_fun_dodecane)
 
 
         Diff_methylal_dodecane=Diffusion.(model_methylal_dodecane,p_iso,Tx)*10^9

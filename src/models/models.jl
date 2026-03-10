@@ -1,5 +1,5 @@
 include("grappa.jl")
-include("SEB.jl")
+include("ese.jl")
 
 # --- utils ---
 # placeholder function for RDKit

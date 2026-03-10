@@ -5,9 +5,9 @@ using EntropyScaling
 
 const ES = EntropyScaling
 
-function MLPROP.SEB(components, es_model::ES.AbstractEntropyScalingModel; p=1e5, kwargs...)
+function MLPROP.ESE(components, es_model::ES.AbstractEntropyScalingModel; p=1e5, kwargs...)
     wrapper = ESModelWrapper(es_model, p)
-    return SEB(components, wrapper; kwargs...)
+    return ESE(components, wrapper; kwargs...)
 end
 
 struct ESModelWrapper{M,T}

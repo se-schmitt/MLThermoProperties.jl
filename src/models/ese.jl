@@ -1,29 +1,29 @@
 
-struct SEBParam{T}
+struct ESEParam{T}
     M::T
     b_ij::T
 end
 
-struct SEB{M,T}
+struct ESE{M,T}
     components::Vector{AbstractString}
-    param::SEBParam{T}
+    param::ESEParam{T}
     vis_model::M
 end
 
 """
-    SEB(SMILE_i, SMILE_j, vis_model)
+    ESE(SMILE_i, SMILE_j, vis_model)
 
 ## Description
 
-SEB model for calculating diffusion coefficients at infinite dilution in a binary mixture.
+ESE model for calculating diffusion coefficients at infinite dilution in a binary mixture.
 The model predicts the boosting factor for the Stokes-Einstein equation using a neural network
 trained on molecular descriptors of the solute and solvent.
 """
-function SEB(SMILE_i::AbstractString, SMILE_j::AbstractString, eta_fun)
+function ESE(SMILE_i::AbstractString, SMILE_j::AbstractString, eta_fun)
     #TODO use Clapeyron style
     # Loading weights and bias from nn_parameters.jld2
-    path_nn_parameters = joinpath(DB_PATH, "SEB", "weights_bias_true.jld2")
-    nn_parameters = load(path_nn_parameters)["Weights_Bias_SEB"]
+    path_nn_parameters = joinpath(DB_PATH, "ESE", "weights_bias_true.jld2")
+    nn_parameters = load(path_nn_parameters)["Weights_Bias_ESE"]
     
     # Processing SMILES to get molecular descriptors used in neural net
     desc_i, desc_j = get_descriptors(SMILE_i), get_descriptors(SMILE_j)
@@ -74,13 +74,13 @@ function SEB(SMILE_i::AbstractString, SMILE_j::AbstractString, eta_fun)
     end
     b_ij_mean /= length(nn_parameters)
 
-    # Constructing SEBParam-datastructure
-    paramSEB = SEBParam(MW, b_ij_mean)
+    # Constructing ESEParam-datastructure
+    paramESE = ESEParam(MW, b_ij_mean)
 
-    return SEB([String(SMILE_i), String(SMILE_j)], paramSEB, eta_fun)
+    return ESE([String(SMILE_i), String(SMILE_j)], paramESE, eta_fun)
 end
 
-Base.broadcastable(x::SEB) = Ref(x)
+Base.broadcastable(x::ESE) = Ref(x)
 
 #TODO use functions from EntropyScaling
 """
@@ -88,11 +88,11 @@ Diffusion
 Diffusion calculates the diffusioncoefficent, using the Stokes-Einstein-equation and multiplying 
 the result with the Boostingfactor
 #Parameters
-'model': Constructed SEB-model (see above)
+'model': Constructed ESE-model (see above)
 'p': Pressure in Pa
 'T': Temperature in Kelvin
 """
-function Diffusion(model::SEB, p, T)
+function Diffusion(model::ESE, p, T)
     # Initialitzing constants required for Stokes-Einstein-equation
     k_b = 1.380649e-23
     roh_i= 1050
@@ -107,4 +107,4 @@ function Diffusion(model::SEB, p, T)
 end
 
 
-export SEB,Diffusion
+export ESE,Diffusion
