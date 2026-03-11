@@ -1,5 +1,6 @@
 using Documenter
 using DocumenterVitepress
+using MLPROP
 
 makedocs(;
     sitename = "MLPROP.jl",
