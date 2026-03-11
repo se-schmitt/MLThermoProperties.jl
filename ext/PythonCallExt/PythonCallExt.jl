@@ -14,6 +14,7 @@ function __init__()
     grappa[] = pyimport("grappa")
 
     MLPROP._GRAPPA[] = _GRAPPA_python
+    MLPROP._get_descriptors[] = _get_descriptors_python
 end
 
 # GRAPPA
@@ -41,7 +42,7 @@ function _GRAPPA_python(components; userlocations, reference_state, verbose)
 end
 
 # Get descriptors
-function MLPROP.get_descriptors(smiles::AbstractString)
+function _get_descriptors_python(smiles::AbstractString)
     mol = chem[].MolFromSmiles(smiles)
     descs = Dict(
         "exactmw" => pyconvert(Float64, desc[].ExactMolWt(mol)),

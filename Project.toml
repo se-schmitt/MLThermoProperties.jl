@@ -21,8 +21,8 @@ RDKitMinimalLib = "44044271-7623-48dc-8250-42433c44e4b7"
 ChemBERTa = {path = "lib/ChemBERTa"}
 
 [extensions]
-EntropyScalingExt = "EntropyScaling"
 PythonCallExt = "PythonCall"
+RDKitMinimalLibExt = "RDKitMinimalLib"
 
 [compat]
 Clapeyron = "0.6.14"

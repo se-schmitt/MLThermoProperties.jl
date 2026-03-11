@@ -19,8 +19,13 @@ function Base.show(io::IO, mime::MIME"text/plain", model::MLPROP_MODELS)
 end
 
 # placeholder function for RDKit #TODO move to utils??
+function _get_descriptors_error(smiles)
+    error("To use this functionality in `MLPROP.jl`, you need to install and import either `PythonCall.jl` or `RDKitMinimalLib.jl`!")
+    return nothing
+end
+
+const _get_descriptors = Ref{Function}(_get_descriptors_error)
+
 function get_descriptors(smiles)
-    error("""
-    To use this functionality in `MLPROP.jl`, you need to install and import either `PythonCall.jl` or `RDKitMinimalLib.jl`!
-    """)
+    return _get_descriptors[](smiles)
 end
