@@ -20,10 +20,10 @@ makedocs(;
     plugins=[bib]
 )
 
-# DocumenterVitepress.deploydocs(;
-#     repo = "github.com/se-schmitt/MLPROP.jl",
-#     target = joinpath(@__DIR__, "build"),
-#     branch = "gh-pages",
-#     devbranch = "main",
-#     push_preview = true,
-# )
+DocumenterVitepress.deploydocs(;
+    repo = "github.com/se-schmitt/MLPROP.jl",
+    target = joinpath(@__DIR__, "build"),
+    branch = "gh-pages",
+    devbranch = "main",
+    push_preview = true,
+)
