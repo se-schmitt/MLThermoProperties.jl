@@ -9,14 +9,14 @@ hero:
   image:
     src: /logo.png
     alt: MLPROP.jl
-  tagline: Hybrid machine learning models to predict various thermodynamic properties -- from phase equilibria to transport properties 
+  tagline: Hybrid machine learning models to predict various thermodynamic properties - from phase equilibria to transport properties 
   actions:
     - theme: alt
       text: Getting started
-      link: /getting_started
+      link: /#Installation
     - theme: alt
-      text: MLPROP models
-      link: /models
+      text: Examples and Tutorials
+      link: /tutorials
     - theme: alt
       text: View on GitHub
       link: https://github.com/se-schmitt/MLPROP.jl
@@ -29,10 +29,10 @@ features:
 
   - icon: <img width="150" height="64" src="Clapeyron_logo_without_text.svg" alt="Clapeyron"/>
     title: Build on Clapeyron.jl
-    details: Use the rich thermodynamics solvers from `Clapeyron.jl`
+    details: Use the rich thermodynamics solvers from Clapeyron.jl
     link: https://github.com/ClapeyronThermo/Clapeyron.jl
 
-  - icon: 🏃
+  - icon: 📊
     title: Website
     details: See our website for interactive calculation of thermodynamic properties based on the MLPROP models
     link: https://ml-prop.mv.rptu.de/
@@ -54,7 +54,7 @@ The `Clapeyron.jl` documentation can be found [here](https://clapeyronthermo.git
 
 For **transport properties**, the methods from **`EntropyScaling.jl`** (see [documentation](https://se-schmitt.github.io/EntropyScaling.jl/stable/)) are employed.
 
-*Quick Links:*
+### Quick Links:
 
 - [Bulk properties](https://clapeyronthermo.github.io/Clapeyron.jl/stable/properties/bulk/)
 - [Pure VLE methods](https://clapeyronthermo.github.io/Clapeyron.jl/stable/properties/single/#Fluid-Single-component-properties)
@@ -65,4 +65,4 @@ For **transport properties**, the methods from **`EntropyScaling.jl`** (see [doc
 
 ## Models
 
-The MLPROP models and their usage is documented [here](@ref models_page).
+The MLPROP models and their usage are documented [here](@ref models_page).

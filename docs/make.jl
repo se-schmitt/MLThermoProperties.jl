@@ -1,6 +1,6 @@
 using Documenter
 using DocumenterVitepress
-using MLPROP
+using MLPROP, Clapeyron
 
 makedocs(;
     sitename = "MLPROP.jl",
