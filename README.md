@@ -1,12 +1,14 @@
 [![Dev][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] [![Build Status][build-img]][build-url] [![Paper][paper-img]][paper-url]
 
 <p align="center">
-  <img width="100%" src="docs/src/assets/logo_large.svg">
+  <a href="https://ml-prop.mv.rptu.de">
+    <img width="100%" src="docs/src/assets/logo_large.svg">
+  </a>
 </p>
 
 # MLPROP.jl
 
-This repository contains the Julia methods of `MLPROP.jl`, including model integration with [Clapeyron.jl](https://github.com/ClapeyronThermo/Clapeyron.jl) as the thermodynamic solver library.
+This repository contains Julia implementations of MLPROP models integrated with [Clapeyron.jl](https://github.com/ClapeyronThermo/Clapeyron.jl) as the thermodynamic solver library.
 An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](https://ml-prop.mv.rptu.de).
 
 The documentation for `MLPROP.jl` can be found [here](https://se-schmitt.github.io/MLPROP.jl/stable).
