@@ -1,11 +1,4 @@
-using ChemBERTa, DelimitedFiles, PythonCall
-CB_PyExt = Base.get_extension(ChemBERTa, :PythonCallExt)
-if Sys.islinux()
-    using RDKitMinimalLib
-    CB_RDKExt = Base.get_extension(ChemBERTa, :RDKitMinimalLibExt)
-end
-
-@testset "ChemBERTa" begin
+@testitem "ChemBERTa" setup=[ChemBERTASetup]  begin
     # SMILES to test
     smiles_list = [
         "CC(=O)OC1=CC=CC=C1C(=O)O",

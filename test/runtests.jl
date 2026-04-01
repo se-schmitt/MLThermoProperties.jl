@@ -1,9 +1,13 @@
 using Test
+using TestItemRunner
 
-@testset "MLThermoProperties.jl" begin
-    include("mlprop.jl")
+@testsnippet ChemBERTASetup begin
+    using ChemBERTa, DelimitedFiles, PythonCall
+    CB_PyExt = Base.get_extension(ChemBERTa, :PythonCallExt)
+    if Sys.islinux()
+        using RDKitMinimalLib
+        CB_RDKExt = Base.get_extension(ChemBERTa, :RDKitMinimalLibExt)
+    end
 end
 
-@testset "ChemBERTa.jl" begin
-    include("chemberta.jl")
-end
+@run_package_tests
