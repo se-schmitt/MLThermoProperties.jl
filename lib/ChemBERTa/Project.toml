@@ -23,7 +23,7 @@ PythonCallExt = "PythonCall"
 
 [compat]
 ConcreteStructs = "0.2.3"
-DataStructures = "0.18"
+DataStructures = "0.18, 0.19"
 JSON = "1"
 Lux = "1"
 NNlib = "0.9.32"

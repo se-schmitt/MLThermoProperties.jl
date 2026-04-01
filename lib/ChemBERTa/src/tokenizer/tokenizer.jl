@@ -1,4 +1,4 @@
-## Vocabulary
+# Vocabulary
 struct Vocab
     token_to_id::Dict{String,Int}
     unk_id::Int
@@ -11,7 +11,7 @@ end
 
 lookup(vocab::Vocab, token::AbstractString) = get(vocab.token_to_id, String(token), vocab.unk_id)
 
-## Tokenizer
+# Tokenizer
 struct ChemBERTaTokenizer
     vocab::Vocab
     max_length::Int
