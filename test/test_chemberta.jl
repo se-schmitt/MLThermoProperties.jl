@@ -1,4 +1,4 @@
-@testitem "ChemBERTa" setup=[ChemBERTASetup]  begin
+@testitem "ChemBERTa" setup=[ChemBERTaSetup]  begin
     # SMILES to test
     smiles_list = [
         "CC(=O)OC1=CC=CC=C1C(=O)O",
