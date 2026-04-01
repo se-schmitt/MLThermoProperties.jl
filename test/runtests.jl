@@ -1,7 +1,7 @@
 using Test
 using TestItemRunner
 
-@testsnippet ChemBERTASetup begin
+@testsnippet ChemBERTaSetup begin
     using ChemBERTa, DelimitedFiles, PythonCall
     CB_PyExt = Base.get_extension(ChemBERTa, :PythonCallExt)
     if Sys.islinux()
