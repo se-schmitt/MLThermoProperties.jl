@@ -1,4 +1,6 @@
-@testset "ogHANNA" begin
+@testitem "ogHANNA" begin
+    using PythonCall, Clapeyron
+
     # System to test
     systems = Dict(
         ["water", "ethanol"]      => ([1.455121, 1.248844], ["O", "CCO"]),
@@ -23,7 +25,9 @@
     end
 end
 
-@testset "multHANNA" begin
+@testitem "multHANNA" begin
+    using PythonCall, Clapeyron
+
     # Systems to test, multHANNAs γ is raw, reference γ is ln(γ)
     systems = Dict(
         ["water", "ethanol", "methanol"]        => ([0.277717203, 0.278312653, -0.033341952], ["O", "CCO", "CO"]),

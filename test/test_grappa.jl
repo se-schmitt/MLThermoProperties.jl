@@ -1,4 +1,6 @@
-@testset "GRAPPA" begin
+@testitem "GRAPPA" begin
+    using PythonCall, Clapeyron
+
     # Compare to https://ml-prop.mv.rptu.de
     model1 = GRAPPA("ethanol")
     @test model1.params.A[1] ≈ 15.197 rtol=1e-4

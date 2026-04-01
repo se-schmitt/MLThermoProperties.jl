@@ -1,4 +1,6 @@
-@testset "ESE" begin 
+@testitem "ESE" begin 
+    using EntropyScaling, PythonCall
+
     p_iso = 1e5 
 
     # Compare to https://ml-prop.mv.rptu.de
