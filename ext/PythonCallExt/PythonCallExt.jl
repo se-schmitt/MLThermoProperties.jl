@@ -3,12 +3,22 @@ module PythonCallExt
 using MLThermoProperties
 using PythonCall
 const CL = MLThermoProperties.Clapeyron
+const CondaPkg = PythonCall.C.CondaPkg
 
 const chem = Ref{Py}()
 const desc = Ref{Py}()
 const grappa = Ref{Py}()
   
 function __init__()
+    conda_env = CondaPkg.envdir()
+    lib_dir = joinpath(conda_env, Sys.iswindows() ? "Lib" : "lib")
+    if isdir(lib_dir)
+        for entry in readdir(lib_dir)
+            sp = joinpath(lib_dir, entry, "site-packages")
+            isdir(sp) && pyimport("sys").path.insert(0, sp)
+        end
+    end
+
     chem[] = pyimport("rdkit.Chem")
     desc[] = pyimport("rdkit.Chem.Descriptors")
     grappa[] = pyimport("grappa")
