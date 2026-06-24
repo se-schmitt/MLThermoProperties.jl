@@ -33,8 +33,8 @@ function LuxCore.initialstates(rng::AbstractRNG, l::LipschitzDense)
         training = Val(true), 
         u = randn(rng, Float32, l.out_dims), 
         v = randn(rng, Float32, l.in_dims),
-        scale = one(Float32),
-        _scaled_weights = zeros(Float32, l.out_dims, l.in_dims),
+        __scale_w = one(Float32),
+        __cache_w = zeros(Float32, l.out_dims, l.in_dims),
     )
 end
 
@@ -44,21 +44,17 @@ LuxCore.outputsize(d::LipschitzDense, _, ::AbstractRNG) = (d.out_dims,)
 
 function (l::LipschitzDense)(x::AbstractArray, ps, st::NamedTuple)
     if iswarmstart(st)
-        weight = ps.weight
-    else
-        # if LuxOps.istraining(st)
-        #     power_iteration!(st.u, st.v, ps.weight)
-        # end
-        # largest_sv = dot(st.u, ps.weight, st.v)
-        # scale = softplus(ps.ci[1]) / (largest_sv + l.eps)
-        # weight = ps.weight .* scale
-        weight = ps.weight
+        st.__scale_w = one(eltype(ps.weight))
+    elseif LuxOps.istraining(st)
+        power_iteration!(st.u, st.v, ps.weight)
+        largest_sv = dot(st.u, ps.weight, st.v)
+        st.__scale_w = softplus(ps.ci[1]) / (largest_sv + l.eps)
     end
-    st._scaled_weights .= ps.weight
-    st._scaled_weights .*= scale
+    st.__cache_w .= ps.weight
+    st.__cache_w .*= st.__scale_w
     _x = Lux.Utils.make_abstract_matrix(x)
     y = Lux.Utils.matrix_to_array(
-        fused_dense_bias_activation(l.activation, weight, _x, ps.bias), x
+        fused_dense_bias_activation(l.activation, st.__cache_w, _x, ps.bias), x
     )
     return y, st
 end
