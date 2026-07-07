@@ -88,20 +88,24 @@ function multHANNA(components;
     N_EMB = 384
     N_NODES = 96
     
-    nn = multHANNALux(
-        LipschitzDense(N_EMB, N_NODES, silu),   # theta
-        Chain(                                  # alpha
-            LipschitzDense(N_NODES + 2, N_NODES, silu),
-            LipschitzDense(N_NODES, N_NODES, silu)
-        ),
-        Chain(                                  # phi    
-            LipschitzDense(N_NODES, N_NODES, silu),
-            LipschitzDense(N_NODES, 1, identity)
-        ),
-        ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(_components)], nothing),
-        100.0
+    theta = LipschitzDense(N_EMB, N_NODES, silu)
+    alpha = Chain(
+        LipschitzDense(N_NODES + 2, N_NODES, silu),
+        LipschitzDense(N_NODES, N_NODES, silu)
     )
-    smodels =  StatefulLuxLayer.(Ref(nn), ps, Lux.testmode.(st))
+    phi = Chain(
+        LipschitzDense(N_NODES, N_NODES, silu),
+        LipschitzDense(N_NODES, 1, identity)
+    )    
+    nns = [
+        multHANNALux(
+            theta, alpha, phi,
+            ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(_components)], nothing),
+            100.0
+        )
+        for _ in eachindex(ps)
+    ]
+    smodels = StatefulLuxLayer.(nns, ps, Lux.testmode.(st))
 
     # Calc embeddings
     if isnothing(BERT)
