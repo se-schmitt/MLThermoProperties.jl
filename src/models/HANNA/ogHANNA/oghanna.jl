@@ -1,17 +1,15 @@
 abstract type ogHANNAModel <: CL.ActivityModel end
 
-struct ogHANNAParam{T,P,S} <: CL.EoSParam
+struct ogHANNAParam{T,M} <: CL.EoSParam
     emb::SingleParam{Vector{T}}
     scaler_T::AbstractScaler{T}
-    nn::ogHANNALux
-    ps::P
-    st::S
+    nn::M
     Mw::SingleParam{T}
 end
 
-struct ogHANNA{c<:CL.EoSModel,T,P,S} <: ogHANNAModel
+struct ogHANNA{c<:CL.EoSModel,T,M} <: ogHANNAModel
     components::Array{String,1}
-    params::ogHANNAParam{T,P,S}
+    params::ogHANNAParam{T,M}
     puremodel::CL.EoSVectorParam{c}
     references::Array{String,1}
 end
@@ -63,11 +61,12 @@ function ogHANNA(components;
         userlocations = String[],
         pure_userlocations = String[],
         verbose = false,
-        reference_state = nothing
+        reference_state = nothing,
+        use_cache = true
 )
     _components = CL.format_components(components)
-    
-    _params = CL.getparams(components,CL.default_locations(ogHANNA);
+
+    _params = CL.getparams(_components,CL.default_locations(ogHANNA);
         userlocations,ignore_headers=["dipprnumber","inchikey","cas"], ignore_missing_singleparams=["canonicalsmiles", "Mw"])
 
     length(_components) > 2 && error("`ogHANNA` is not suited for multicomponent systems. Use `HANNA` instead.")
@@ -77,19 +76,21 @@ function ogHANNA(components;
         _params["canonicalsmiles"].values[i]
     for i in eachindex(_components)]
 
+    # Load model parameters and scalers
+    ps, st = load(joinpath(get_model_path(ogHANNA),"parameters_states.jld2"), "ps", "st")
+    scaler_T =   load_scaler(joinpath(get_model_path(ogHANNA), "scaler_T.jld2"))
+    scaler_emb = load_scaler(joinpath(get_model_path(ogHANNA), "scaler_emb.jld2"))
+
     # Create model
     N_EMB = 384
     N_NODES = 96
     nn = ogHANNALux(
         Dense(N_EMB, N_NODES, silu),
         Chain(Dense(N_NODES + 2, N_NODES, silu), Dense(N_NODES, N_NODES, silu)),
-        Chain(Dense(N_NODES, N_NODES, silu), Dense(N_NODES, 1))
+        Chain(Dense(N_NODES, N_NODES, silu), Dense(N_NODES, 1)),
+        ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(_components)], nothing)
     )
-    
-    # Load model parameters and scalers
-    ps, st = load(joinpath(get_model_path(ogHANNA),"parameters_states.jld2"), "ps", "st")
-    scaler_T =   load_scaler(joinpath(get_model_path(ogHANNA), "scaler_T.jld2"))
-    scaler_emb = load_scaler(joinpath(get_model_path(ogHANNA), "scaler_emb.jld2"))
+    smodel = StatefulLuxLayer(nn, ps, Lux.testmode(st))
 
     # Calc embeddings
     if isnothing(BERT)
@@ -97,8 +98,15 @@ function ogHANNA(components;
     end
     emb = SingleParam("ChemBERTa embedding", _components, scale.(scaler_emb, BERT.(smiles; is_canonical=true)))
 
-    params = ogHANNAParam(emb, scaler_T, nn, ps, st, _params["Mw"])
-    
+    # Set θ caches
+    if use_cache
+        for i in eachindex(_components)
+            smodel.model.__cache_θs[i] .= first(smodel.model.theta(emb[i], smodel.ps.theta, smodel.st.theta))
+        end
+    end
+
+    params = ogHANNAParam(emb, scaler_T, smodel, _params["Mw"])
+
     _puremodel = CL.init_puremodel(puremodel, components, pure_userlocations, verbose)
     references = String["10.1039/D4SC05115G"]
     model = ogHANNA(_components, params, _puremodel, references)
@@ -112,8 +120,8 @@ function CL.excess_gibbs_free_energy(model::ogHANNA, p, T, z)
     
     params = model.params
     Ts = scale(params.scaler_T, T)
-    gE = params.nn((Ts,x,params.emb.values), params.ps, params.st)
-    
+    gE = params.nn((Ts,x,params.emb.values))
+
     return gE * Rgas(model) * T * sum(z)
 end
 

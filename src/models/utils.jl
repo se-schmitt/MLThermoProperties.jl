@@ -17,8 +17,9 @@ end
 
 Base.broadcastable(scaler::AbstractScaler) = Ref(scaler)
 Clapeyron.is_splittable(::AbstractScaler) = false
-
-Clapeyron.is_splittable(::NamedTuple) = false       #TODO move to Clapeyron
+#TODO move to Clapeyron
+Clapeyron.is_splittable(::StatefulLuxLayer) = false
+Clapeyron.is_splittable(::NamedTuple) = false
 
 function _build_es_model(components, model::ES.AbstractEntropyScalingModel; kwargs...)
     return model

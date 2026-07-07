@@ -1,18 +1,15 @@
 abstract type multHANNAModel <: CL.ActivityModel end
 
-struct multHANNAParam{T,P,S} <: CL.EoSParam
+struct multHANNAParam{T,M} <: CL.EoSParam
     emb::SingleParam{Vector{T}}
     scaler_T::AbstractScaler{T}
-    nn::multHANNALux      
-    ps::P
-    st::S
+    nn::M
     Mw::SingleParam{T}
-    gamma::T                    # for RBF-equation
 end
 
-struct multHANNA{c<:CL.EoSModel,T,P,S} <: multHANNAModel
+struct multHANNA{c<:CL.EoSModel,T,M} <: multHANNAModel
     components::Array{String,1}
-    params::multHANNAParam{T,P,S}
+    params::multHANNAParam{T,M}
     puremodel::CL.EoSVectorParam{c}
     references::Array{String,1}
 end
@@ -66,13 +63,14 @@ function multHANNA(components;
         userlocations = String[],
         pure_userlocations = String[],
         verbose = false,
-        reference_state = nothing
+        reference_state = nothing,
+        use_cache = true
 )
 
     # loading SMILES und Parameter
     _components = CL.format_components(components)
     
-    _params = CL.getparams(components,CL.default_locations(multHANNA);
+    _params = CL.getparams(_components,CL.default_locations(multHANNA);
         userlocations,ignore_headers=["dipprnumber","inchikey","cas"], ignore_missing_singleparams=["canonicalsmiles", "Mw"])
 
     smiles = [
@@ -81,26 +79,38 @@ function multHANNA(components;
         _params["canonicalsmiles"].values[i]
     for i in eachindex(_components)]
 
-    # Create model
-    N_EMB = 384
-    N_NODES = 96
-    
-    nn = multHANNALux(
-        LipschitzDense(N_EMB, N_NODES, silu),   # theta
-        Chain(                                  # alpha
-            LipschitzDense(N_NODES + 2, N_NODES, silu),
-            LipschitzDense(N_NODES, N_NODES, silu)
-        ),
-        Chain(                                  # phi    
-            LipschitzDense(N_NODES, N_NODES, silu),
-            LipschitzDense(N_NODES, 1, identity)
-        )
-    )
-    
     # load parameters and scalers
     ps, st = load(joinpath(get_model_path(multHANNA),"parameters_states_ensemble.jld2"), "ps", "st")
     scaler_T =   load_scaler(joinpath(get_model_path(multHANNA), "scaler_T.jld2"))
     scaler_emb = load_scaler(joinpath(get_model_path(multHANNA), "scaler_emb.jld2"))
+
+    # Create model
+    N_EMB = 384
+    N_NODES = 96
+    
+    theta = LipschitzDense(N_EMB, N_NODES, silu)
+    alpha = Chain(
+        LipschitzDense(N_NODES + 2, N_NODES, silu),
+        LipschitzDense(N_NODES, N_NODES, silu)
+    )
+    phi = Chain(
+        LipschitzDense(N_NODES, N_NODES, silu),
+        LipschitzDense(N_NODES, 1, identity)
+    )    
+    nns = [
+        multHANNALux(
+            theta, alpha, phi,
+            ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(_components)], nothing),
+            100.0
+        )
+        for _ in eachindex(ps)
+    ]
+    smodels = StatefulLuxLayer.(nns, ps, Lux.testmode.(st))
+
+    # Precompute the Lipschitz-scaled weights once (inference reuses them)
+    for smodel in smodels
+        prime_scaled_weights!(smodel.ps, smodel.st)
+    end
 
     # Calc embeddings
     if isnothing(BERT)
@@ -108,7 +118,14 @@ function multHANNA(components;
     end
     emb = SingleParam("ChemBERTa embedding", _components, scale.(scaler_emb, BERT.(smiles; is_canonical=true)))
 
-    params = multHANNAParam(emb, scaler_T, nn, ps, Lux.testmode.(st), _params["Mw"], 100.0)
+    # Set θ caches
+    if use_cache
+        for smodel in smodels, i in eachindex(_components)
+            smodel.model.__cache_θs[i] .= first(smodel.model.theta(emb[i], smodel.ps.theta, smodel.st.theta))
+        end
+    end
+
+    params = multHANNAParam(emb, scaler_T, smodels, _params["Mw"])
     _puremodel = CL.init_puremodel(puremodel, components, pure_userlocations, verbose)
     references = String["10.48550/arXiv.2509.06484"]
 
@@ -125,20 +142,15 @@ function CL.excess_gibbs_free_energy(model::multHANNAModel, p, T, z)
     params = model.params
     # Embeddings and RBF-Gamma
     embs = params.emb.values
-    gamma = params.gamma
-    
-    # all_ps and all_st contains all parameters of all 10 ensemble models
-    all_ps = params.ps
-    all_st = params.st
     
     T_scaled = scale(params.scaler_T, T) 
     
     # loop over all ensemble models
     gE_sum = zero(eltype(x)) 
-    num_models = length(all_ps)
+    num_models = length(model.params.nn)
     
-    for i in 1:num_models
-        gE_sum += model.params.nn((T_scaled, x, embs), gamma, all_ps[i], all_st[i])
+    for nn in model.params.nn
+        gE_sum += nn((T_scaled, x, embs),)
     end
     
     gE_mean_dim_less = gE_sum / num_models

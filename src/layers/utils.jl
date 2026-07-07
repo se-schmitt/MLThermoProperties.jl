@@ -1,8 +1,8 @@
 # Power iteration
 function power_iteration!(u::AbstractVector, v::AbstractVector, weight::AbstractMatrix; eps=1f-12)
-    v .= transpose(weight) * u
+    mul!(v, transpose(weight), u)
     v ./= norm(v) + eps
-    u .= weight * v
+    mul!(u, weight, v)
     u ./= norm(u) + eps
     return nothing
 end
