@@ -9,11 +9,9 @@ Clapeyron.is_splittable(::ogHANNALux) = false
 
 function (model::ogHANNALux)((T,x,embs), ps, st)
 
-    θs = ifelse(
-        isnothing(model.__cache_θs),
-        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs],
+    θs = isnothing(model.__cache_θs) ?
+        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs] :
         model.__cache_θs
-    )
 
     # Calculate cosine similarity and distance between the two components
     cosine_sim_ij = cosine_similarity(θs[1],θs[2])

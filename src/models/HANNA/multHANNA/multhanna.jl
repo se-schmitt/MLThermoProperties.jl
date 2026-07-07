@@ -107,6 +107,11 @@ function multHANNA(components;
     ]
     smodels = StatefulLuxLayer.(nns, ps, Lux.testmode.(st))
 
+    # Precompute the Lipschitz-scaled weights once (inference reuses them)
+    for smodel in smodels
+        prime_scaled_weights!(smodel.ps, smodel.st)
+    end
+
     # Calc embeddings
     if isnothing(BERT)
         global BERT = ChemBERTa.load()

@@ -13,11 +13,9 @@ Clapeyron.is_splittable(::multHANNALux) = false
 function (model::multHANNALux)((T, x, embs), ps, st)
     N = length(x)
     
-    θs = ifelse(
-        isnothing(model.__cache_θs),
-        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs],
+    θs = isnothing(model.__cache_θs) ?
+        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs] :
         model.__cache_θs
-    )
 
     rbf_sim = ones(N,N)
     for i in 1:N, j in (i+1):N
