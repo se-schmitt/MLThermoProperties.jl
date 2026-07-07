@@ -4,18 +4,24 @@
     theta
     alpha
     phi
+    __cache_θs
+    gamma
 end
 
 Clapeyron.is_splittable(::multHANNALux) = false
 
-function (model::multHANNALux)((T, x, embs), gamma, ps, st)
+function (model::multHANNALux)((T, x, embs), ps, st)
     N = length(x)
     
-    θs = [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs]
+    θs = ifelse(
+        isnothing(model.__cache_θs),
+        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs],
+        model.__cache_θs
+    )
 
     rbf_sim = ones(N,N)
     for i in 1:N, j in (i+1):N
-        rbf_sim[i,j] = exp(-gamma * sum(abs2, θs[i] .- θs[j]))
+        rbf_sim[i,j] = exp(-model.gamma * sum(abs2, θs[i] .- θs[j]))
         rbf_sim[j,i] = rbf_sim[i,j]
     end
     
@@ -48,5 +54,5 @@ function (model::multHANNALux)((T, x, embs), gamma, ps, st)
         end
     end
     
-    return gE_total
+    return gE_total, st
 end
