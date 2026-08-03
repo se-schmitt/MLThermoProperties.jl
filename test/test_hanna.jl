@@ -52,3 +52,32 @@ end
         @test γs_i_smiles[3] ≈ exp(lnγs_ref_i[3]) rtol=1e-5
     end
 end
+
+@testitem "multHANNA_ext" begin
+    using PythonCall, Clapeyron
+
+    # Systems to test, multHANNA_ext γ is raw, reference γ is ln(γ)
+    systems = Dict(
+        ["acetone", "benzene", "methanol"]        => ([.8, .2, .0], [0.0201059933751821, 0.245555832982063, 1.06565690040588], ["CC(C)=O", "c1ccccc1", "CO"]),
+        ["acetone", "benzene", "methanol"]        => ([.6, .2, .2], [0.021287452429533, 0.432258546352386, 0.664856910705566], ["CC(C)=O", "c1ccccc1", "CO"]),
+        ["acetone", "benzene", "methanol"]        => ([.4, .3, .3], [0.0316174626350403, 0.482645124197006, 0.593006253242493], ["CC(C)=O", "c1ccccc1", "CO"]),
+
+    )
+
+    # Calculating the gammas for a given SMILES-pair and compare to Python reference
+    for (system_i, (z_ref, lnγs_ref_i, smiles_i)) in systems
+        # Use Clapeyron.jl database
+        model = multHANNA_ext(system_i)
+        γs_i = activity_coefficient(model, 1e5, 298.15, z_ref)
+        @test γs_i[1] ≈ exp(lnγs_ref_i[1]) rtol=1e-5
+        @test γs_i[2] ≈ exp(lnγs_ref_i[2]) rtol=1e-5
+        @test γs_i[3] ≈ exp(lnγs_ref_i[3]) rtol=1e-5
+
+        # Use `userlocations` keyword
+        model_smiles = multHANNA_ext(["comp A", "comp B", "comp C"]; userlocations=(;SMILES=smiles_i))
+        γs_i_smiles = activity_coefficient(model_smiles, 1e5, 298.15, z_ref)
+        @test γs_i_smiles[1] ≈ exp(lnγs_ref_i[1]) rtol=1e-5
+        @test γs_i_smiles[2] ≈ exp(lnγs_ref_i[2]) rtol=1e-5
+        @test γs_i_smiles[3] ≈ exp(lnγs_ref_i[3]) rtol=1e-5
+    end
+end
