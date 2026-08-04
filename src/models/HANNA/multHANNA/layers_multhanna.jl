@@ -1,6 +1,6 @@
-#using Lux, ConcreteStructs, Random, LinearAlgebra
+abstract type AbstractMultHANNALux{layers} <: AbstractLuxContainerLayer{layers} end
 
-@concrete struct multHANNALux <: AbstractLuxContainerLayer{(:theta, :alpha, :phi)}
+@concrete struct multHANNALux <: AbstractMultHANNALux{(:theta, :alpha, :phi)}
     theta
     alpha
     phi
@@ -10,20 +10,17 @@ end
 
 Clapeyron.is_splittable(::multHANNALux) = false
 
-function (model::multHANNALux)((T, x, embs), ps, st)
+function (model::AbstractMultHANNALux)((T, x, embs), ps, st)
     N = length(x)
     
     θs = isnothing(model.__cache_θs) ?
         [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs] :
         model.__cache_θs
 
-    rbf_sim = ones(N,N)
-    for i in 1:N, j in (i+1):N
-        rbf_sim[i,j] = exp(-model.gamma * sum(abs2, θs[i] .- θs[j]))
-        rbf_sim[j,i] = rbf_sim[i,j]
-    end
+    similarity = ones(N,N)
+    calc_similarity!(similarity, model, θs)
     
-    x_adj = rbf_sim * x
+    x_adj = similarity * x
     
     gE_total = zero(Base.promote_eltype(T,x))
     
@@ -45,7 +42,7 @@ function (model::multHANNALux)((T, x, embs), ps, st)
             gE_NN_ij = first(model.phi(α_ij, ps.phi, st.phi))[1]
             
             # check simalarity
-            correction = x[i] * x[j] * (1.0 - rbf_sim[i, j])
+            correction = x[i] * x[j] * (1.0 - similarity[i, j])
             
             # adding correction 
             gE_total += gE_NN_ij * correction
@@ -53,4 +50,12 @@ function (model::multHANNALux)((T, x, embs), ps, st)
     end
     
     return gE_total, st
+end
+
+function calc_similarity!(similarity, model::multHANNALux, θs)
+    N = length(θs)
+    for i in 1:N, j in (i+1):N
+        similarity[i,j] = exp(-model.gamma * sum(abs2, θs[i] .- θs[j]))
+        similarity[j,i] = similarity[i,j]
+    end
 end

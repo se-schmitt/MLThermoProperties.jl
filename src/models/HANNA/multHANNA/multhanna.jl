@@ -1,4 +1,4 @@
-abstract type multHANNAModel <: CL.ActivityModel end
+abstract type multHANNAModel <: AbstractMultHANNA end
 
 struct multHANNAParam{T,M} <: CL.EoSParam
     emb::SingleParam{Vector{T}}
@@ -66,11 +66,21 @@ function multHANNA(components;
         reference_state = nothing,
         use_cache = true
 )
+    return _build_multhanna(
+        multHANNA, components; 
+        puremodel, userlocations, pure_userlocations, verbose, reference_state, use_cache
+    )
+end
 
+# Build a multHANNA model
+function _build_multhanna(
+    MODEL, components; 
+    puremodel, userlocations, pure_userlocations, verbose, reference_state, use_cache
+)
     # loading SMILES und Parameter
     _components = CL.format_components(components)
     
-    _params = CL.getparams(_components,CL.default_locations(multHANNA);
+    _params = CL.getparams(_components,CL.default_locations(MODEL);
         userlocations,ignore_headers=["dipprnumber","inchikey","cas"], ignore_missing_singleparams=["canonicalsmiles", "Mw"])
 
     smiles = [
@@ -80,9 +90,9 @@ function multHANNA(components;
     for i in eachindex(_components)]
 
     # load parameters and scalers
-    ps, st = load(joinpath(get_model_path(multHANNA),"parameters_states_ensemble.jld2"), "ps", "st")
-    scaler_T =   load_scaler(joinpath(get_model_path(multHANNA), "scaler_T.jld2"))
-    scaler_emb = load_scaler(joinpath(get_model_path(multHANNA), "scaler_emb.jld2"))
+    ps, st = load(joinpath(get_model_path(MODEL),"parameters_states_ensemble.jld2"), "ps", "st")
+    scaler_T =   load_scaler(joinpath(get_model_path(MODEL), "scaler_T.jld2"))
+    scaler_emb = load_scaler(joinpath(get_model_path(MODEL), "scaler_emb.jld2"))
 
     # Create model
     N_EMB = 384
@@ -97,14 +107,7 @@ function multHANNA(components;
         LipschitzDense(N_NODES, N_NODES, silu),
         LipschitzDense(N_NODES, 1, identity)
     )    
-    nns = [
-        multHANNALux(
-            theta, alpha, phi,
-            ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(_components)], nothing),
-            100.0
-        )
-        for _ in eachindex(ps)
-    ]
+    nns = [_build_multhanna_lux(MODEL, theta, alpha, phi, _components; use_cache, N_NODES) for _ in eachindex(ps)]
     smodels = StatefulLuxLayer.(nns, ps, Lux.testmode.(st))
 
     # Precompute the Lipschitz-scaled weights once (inference reuses them)
@@ -125,18 +128,28 @@ function multHANNA(components;
         end
     end
 
-    params = multHANNAParam(emb, scaler_T, smodels, _params["Mw"])
+    params = _build_multhanna_param(MODEL, emb, scaler_T, smodels, _params)
     _puremodel = CL.init_puremodel(puremodel, components, pure_userlocations, verbose)
     references = String["10.48550/arXiv.2509.06484"]
 
-    model = multHANNA(_components, params, _puremodel, references)
+    model = MODEL(_components, params, _puremodel, references)
     CL.set_reference_state!(model, reference_state, verbose = verbose)
 
     return model
 end
 
+# helper functions
+function _build_multhanna_lux(::Type{multHANNA}, theta, alpha, phi, c; use_cache, N_NODES)
+    _cache = ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(c)], nothing)
+    return multHANNALux(theta, alpha, phi, _cache, 100.0)
+end
 
-function CL.excess_gibbs_free_energy(model::multHANNAModel, p, T, z)
+function _build_multhanna_param(::Type{multHANNA}, emb, scaler_T, smodels, _params)
+    return multHANNAParam(emb, scaler_T, smodels, _params["Mw"])
+end
+
+# gE
+function CL.excess_gibbs_free_energy(model::AbstractMultHANNA, p, T, z)
     x = z ./ sum(z) 
     
     params = model.params
