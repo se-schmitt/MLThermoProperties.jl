@@ -53,6 +53,7 @@ function (model::AbstractMultHANNALux)((T, x, embs), ps, st)
 end
 
 function calc_similarity!(similarity, model::multHANNALux, θs)
+    N = length(θs)
     for i in 1:N, j in (i+1):N
         similarity[i,j] = exp(-model.gamma * sum(abs2, θs[i] .- θs[j]))
         similarity[j,i] = similarity[i,j]

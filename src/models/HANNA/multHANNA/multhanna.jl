@@ -107,7 +107,7 @@ function _build_multhanna(
         LipschitzDense(N_NODES, N_NODES, silu),
         LipschitzDense(N_NODES, 1, identity)
     )    
-    nns = [_build_multhanna_lux(MODEL, theta, alpha, phi, _components) for _ in eachindex(ps)]
+    nns = [_build_multhanna_lux(MODEL, theta, alpha, phi, _components; use_cache, N_NODES) for _ in eachindex(ps)]
     smodels = StatefulLuxLayer.(nns, ps, Lux.testmode.(st))
 
     # Precompute the Lipschitz-scaled weights once (inference reuses them)
@@ -139,12 +139,12 @@ function _build_multhanna(
 end
 
 # helper functions
-function _build_multhanna_lux(::multHANNA, theta, alpha, phi, c)
+function _build_multhanna_lux(::Type{multHANNA}, theta, alpha, phi, c; use_cache, N_NODES)
     _cache = ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(c)], nothing)
     return multHANNALux(theta, alpha, phi, _cache, 100.0)
 end
 
-function _build_multhanna_param(::multHANNA, emb, scaler_T, smodels, _params)
+function _build_multhanna_param(::Type{multHANNA}, emb, scaler_T, smodels, _params)
     return multHANNAParam(emb, scaler_T, smodels, _params["Mw"])
 end
 

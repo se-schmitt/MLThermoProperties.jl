@@ -25,13 +25,13 @@ function diffHANNA(components;
 end
 
 # helper functions
-function _build_multhanna_lux(::diffHANNA, theta, alpha, phi, c)
+function _build_multhanna_lux(::Type{diffHANNA}, theta, alpha, phi, c; use_cache, N_NODES)
     _cache = ifelse(use_cache, [zeros(N_NODES,1) for _ in eachindex(c)], nothing)
     return diffHANNALux(theta, alpha, phi, _cache)
 end
 
-function _build_multhanna_param(::diffHANNA, emb, scaler_T, smodels, _params)
-    return diffHANNAParam(emb, scaler_T, smodels, _params["Mw"])
+function _build_multhanna_param(::Type{diffHANNA}, emb, scaler_T, smodels, _params)
+    return multHANNAParam(emb, scaler_T, smodels, _params["Mw"])
 end
 
 # Lux layer
@@ -46,8 +46,10 @@ Clapeyron.is_splittable(::diffHANNALux) = false
 
 # similarity
 function calc_similarity!(similarity, model::diffHANNALux, θs)
+    N = length(θs)
     for i in 1:N, j in (i+1):N
-        similarity[i,j] = exp(-model.gamma * sum(abs2, θs[i] .- θs[j]))
-        similarity[j,i] = similarity[i,j]
+        sim = cosine_similarity(θs[i], θs[j])
+        similarity[i,j] = sim
+        similarity[j,i] = sim
     end
 end
