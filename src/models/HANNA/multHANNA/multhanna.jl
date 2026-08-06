@@ -1,4 +1,4 @@
-abstract type multHANNAModel <: AbstractMultHANNA end
+abstract type multHANNAModel <: CL.ActivityModel end
 
 struct multHANNAParam{T,M} <: CL.EoSParam
     emb::SingleParam{Vector{T}}
@@ -149,7 +149,7 @@ function _build_multhanna_param(::Type{multHANNA}, emb, scaler_T, smodels, _para
 end
 
 # gE
-function CL.excess_gibbs_free_energy(model::AbstractMultHANNA, p, T, z)
+function CL.excess_gibbs_free_energy(model::multHANNAModel, p, T, z)
     x = z ./ sum(z) 
     
     params = model.params

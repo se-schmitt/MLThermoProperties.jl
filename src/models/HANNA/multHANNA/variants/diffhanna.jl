@@ -1,4 +1,4 @@
-abstract type diffHANNAModel <: AbstractMultHANNA end
+abstract type diffHANNAModel <: multHANNAModel end
 
 struct diffHANNA{c<:CL.EoSModel,T,M} <: diffHANNAModel
     components::Array{String,1}
