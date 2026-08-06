@@ -1,5 +1,3 @@
-abstract type AbstractMultHANNA <: CL.ActivityModel end
-
 # ogHANNA
 include("ogHANNA/layers_oghanna.jl")
 include("ogHANNA/oghanna.jl")
