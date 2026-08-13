@@ -78,12 +78,10 @@ function ESE(components;
     b_ij = zeros(N_comps, N_comps)
 
     for i in 1:N_comps, j in 1:N_comps
-        if i != j
-            _X2[1:6] .= Xs[i]
-            _X2[7:12] .= Xs[j]
-            for (psᵢ, stᵢ) in zip(ps, st)
-                b_ij[i,j] += only(first(nn(_X2, psᵢ, stᵢ))) ./ N_ensemble
-            end
+        _X2[1:6] .= Xs[i]
+        _X2[7:12] .= Xs[j]
+        for (psᵢ, stᵢ) in zip(ps, st)
+            b_ij[i,j] += only(first(nn(_X2, psᵢ, stᵢ))) ./ N_ensemble
         end
     end
 
