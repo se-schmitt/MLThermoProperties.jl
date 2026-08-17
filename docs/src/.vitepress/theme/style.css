@@ -18,6 +18,25 @@ https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/var
   line-height: 1.3;
 }
 
+.VPHero .image-container .image-src {
+  max-width: 280px;
+  max-height: 280px;
+}
+
+@media (min-width: 640px) {
+  .VPHero .image-container .image-src {
+    max-width: 400px;
+    max-height: 400px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .image-container .image-src {
+    max-width: 500px;
+    max-height: 500px;
+  }
+}
+
 /* Fonts */
 @font-face {
   font-family: JuliaMono-Regular;

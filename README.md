@@ -1,17 +1,26 @@
 [![Dev][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] [![Build Status][build-img]][build-url] [![Paper][paper-img]][paper-url]
 
-<p align="center">
-  <a href="https://ml-prop.mv.rptu.de">
-    <img width="100%" src="docs/src/assets/logo_large.svg">
-  </a>
+<p>
+  <picture>
+    <!-- <source media="(prefers-color-scheme: dark)" srcset="docs/src/assets/logos/logo_dark.svg"> -->
+    <!-- <source media="(prefers-color-scheme: light)" srcset="docs/src/assets/logos/logo.svg"> -->
+    <img src="docs/src/assets/logos/logo_with_text.svg">
+  </picture>
 </p>
 
-# MLThermoProperties.jl
+<!-- # MLThermoProperties.jl -->
 
-This repository contains Julia implementations of hybrid ML models for thermodynamic property prediction (MLPROP) integrated with [Clapeyron.jl](https://github.com/ClapeyronThermo/Clapeyron.jl) as the thermodynamic solver library.
-An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](https://ml-prop.mv.rptu.de).
+This repository contains Julia implementations of hybrid ML models for thermodynamic property prediction integrated with [Clapeyron.jl](https://github.com/ClapeyronThermo/Clapeyron.jl) as the thermodynamic solver library.
 
 The documentation for `MLThermoProperties.jl` can be found [here](https://se-schmitt.github.io/MLThermoProperties.jl/stable).
+
+An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](https://ml-prop.mv.rptu.de).
+
+<p align="center">
+  <a href="https://ml-prop.mv.rptu.de">
+    <img width="80%" src="docs/src/assets/logos/mlprop.svg">
+  </a>
+</p>
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://se-schmitt.github.io/MLThermoProperties.jl/stable
