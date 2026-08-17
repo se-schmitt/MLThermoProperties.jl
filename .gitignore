@@ -10,3 +10,11 @@ debug_*
 docs/build/
 docs/node_modules/
 docs/src/tutorials/*.md
+
+# Latex
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz

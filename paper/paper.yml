@@ -1,0 +1,19 @@
+title: "My JuliaCon proceeding"
+keywords:
+  - Julia
+  - Thermodynamics
+  - Machine Learning
+  - Chemical Engineering
+authors:
+  - name: Sebastian Schmitt
+    orcid: 0000-0001-7909-2945
+    affiliation: 1
+  - name: Hans Hasse
+    affiliation: 1
+  - name: Fabian Jirasek
+    affiliation: 1
+affiliations:
+  - name: Laboratory of Engineering Thermodynamics (LTD), RPTU Kaiserslautern
+    index: 1
+date: 17 August 2026
+bibliography: ref.bib
