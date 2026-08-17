@@ -23,7 +23,7 @@ An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](h
   ```julia
   julia> using MLThermoProperties, Clapeyron
 
-  julia> model = ogHANNA(["ethanol", "benzene"]; puremodel = GRAPPA)
+  julia> model = HANNA(["ethanol", "benzene"]; puremodel = GRAPPA)
   ogHANNA with 2 components:
    "ethanol"
    "benzene"
@@ -33,23 +33,6 @@ An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](h
 
   julia> p, y
   (75464.8842312711, [0.456908488637454, 0.543091511362546])
-  ```
-
-- **Activity coefficients with HANNA**: predict activity coefficients for ethanol + benzene at 333.15 K with the original HANNA model:
-
-  ```julia
-  julia> using MLThermoProperties, Clapeyron
-
-  julia> model = ogHANNA(["ethanol", "benzene"]; puremodel = PR)
-  ogHANNA with 2 components:
-   "ethanol"
-   "benzene"
-  Contains parameters: emb, scaler_T, nn, Mw
-
-  julia> activity_coefficient(model, 1e5, 333.15, [0.5, 0.5])
-  2-element Vector{Float64}:
-   1.431696397770973
-   1.6120775659687212
   ```
 
 - **Infinite-dilution diffusion coefficients with ESE**: compute the infinite-dilution diffusion coefficient of ethanol in n-decane at 300 K:
