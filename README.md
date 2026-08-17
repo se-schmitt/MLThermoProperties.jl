@@ -4,7 +4,7 @@
   <picture>
     <!-- <source media="(prefers-color-scheme: dark)" srcset="docs/src/assets/logos/logo_dark.svg"> -->
     <!-- <source media="(prefers-color-scheme: light)" srcset="docs/src/assets/logos/logo.svg"> -->
-    <img src="docs/src/assets/logos/logo_with_text.svg">
+    <img src="docs/src/assets/logos/logo_with_text_left.svg">
   </picture>
 </p>
 
