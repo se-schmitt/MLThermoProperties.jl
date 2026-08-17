@@ -4,10 +4,10 @@
 layout: home
 
 hero:
-  name: MLThermoProperties.jl
-  text: State-of-the-art hybrid thermodynamic models
+  name: "Hybrid Thermodynamic<br>Models"
+  text: Documentation
   image:
-    src: /logo.png
+    src: /logos/logo_with_text.svg
     alt: MLThermoProperties.jl
   tagline: Hybrid machine learning models to predict various thermodynamic properties - from phase equilibria to transport properties 
   actions:
@@ -27,7 +27,7 @@ features:
     details: Predictions of thermodynamic properties for any substance based on hybrid thermodynamic models
     link: /models
 
-  - icon: <img width="150" height="64" src="Clapeyron_logo_without_text.svg" alt="Clapeyron"/>
+  - icon: <img width="150" height="64" src="logos/clapeyron_without_text.svg" alt="Clapeyron"/>
     title: Built on Clapeyron.jl
     details: Use the rich thermodynamics solvers from Clapeyron.jl
     link: https://github.com/ClapeyronThermo/Clapeyron.jl
