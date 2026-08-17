@@ -32,7 +32,7 @@ An interactive website for MLPROP is available at [https://ml-prop.mv.rptu.de](h
   julia> p, _, _, y = bubble_pressure(model, 333.15, [0.5, 0.5]);
 
   julia> p, y
-  (75464.8842312711, [0.456908488637454, 0.543091511362546])
+  (74307.79100441566, [0.46363929375856405, 0.536360706241436])
   ```
 
 - **Infinite-dilution diffusion coefficients with ESE**: compute the infinite-dilution diffusion coefficient of ethanol in n-decane at 300 K:
