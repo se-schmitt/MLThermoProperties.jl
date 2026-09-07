@@ -11,93 +11,36 @@
 
 \begin{abstract}
 
-This is a guide for authors who are preparing papers for JuliaCon using the \LaTeX{} document
-preparation system and the \verb|juliacon|  class file.
+We present MLThermoProperties.jl, a Julia package that provides a variety of state-of-the-art thermodynamic models that combine modern machine learning methods with physical knowledge. 
+These hybrid models obey hard physical constraints while being more accurate and applicable to a wider scope of substances than established models. 
+MLThermoProperties.jl is built upon the Clapeyron.jl package, leveraging its rich thermodynamic solver ecosystem. 
+The MLThermoProperties.jl models signifi­cantly improve molecular property prediction in various applications in science and engineering, e.g., chemical process engineering. 
+Exemplary applications will be demonstrated in the talk by coupling MLThermoProperties.jl with Julia’s rich ecosystem for scientific modeling and simulation.
 
 \end{abstract}
 
 \section{Introduction}
 
-The \LaTeX{} document preparation system is a special version of the
-\TeX; typesetting program where-in a collection of \TeX; commands
-are added to \LaTeX{} to simplify typesetting. Importantly, it allows
-the author to concentrate on the logical structure of the document
-rather than its visual layout.\vskip 6pt
-Moreover, \LaTeX{} provides a consistent and comprehensive document
-preparation interface. There are simple-to-use commands for
-generating a table of contents, lists of figures and/or tables, and indexes.
-\LaTeX{} can automatically number list entries, equations, figures,
-tables, and footnotes, as well as articles, sections, and subsections.
-Using this numbering system, bibliographic citations, page
-references, and cross references to any other numbered entity (e.g.
-article, section, equation, figure, list entry, etc.) become quite simple
-and straightforward. The use of \LaTeX{} document classes allows
-a simple change of class to transform the appearance of your document.\vskip 6pt
-\LaTeX{} is a powerful tool for managing long and complex documents.
-In particular, partial processing enables long documents to
-be produced article by article without losing sequential information.
-The use of document classes allows a simple change of style
-(or style option) to transform the appearance of your document.
+Knowledge of thermodynamic properties of fluids is crucial in many fields of engineering and science, e.g., for developing new chemical and biotechnological processes, optimizing heat pumps, or designing carbon capture and storage technologies. 
+However, experimental data on thermodynamic properties are notoriously scarce due to the high cost and effort of measurements, making reliable prediction models indispensable. 
+In recent years, machine learning (ML) has emerged as a particularly promising approach to thermodynamic modeling \cite{hasse_artificial_2026}.
 
+In our research group, many state-of-the-art thermodynamic ML models are developed under the umbrella of MLPROP, a collection of open-source ML models for molecular property prediction.
+These models, despite being neural networks at their core, are thermodynamically consistent, i.e., they obey hard physical constraints.
+This consistency is either achieved by an appropriate architecture or by exploiting existing thermodynamic models to form new hybrid models.
+Based only on the SMILES code of a substance -- a textual representation of the molecular structure -- the MLPROP models predict multiple thermodynamic properties, outperforming established models in both accuracy and scope \cite{hoffmann_machine-learned_2025}.
+Among the covered properties are phase equilibria of pure substances and mixtures \cite{specht_hanna_2024}, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026} that govern molecular mass transfer.
+The models utilize different ML architectures, including the chemical language model ChemBERTa \cite{ahmad_chemberta-2_2022} and molecular graph neural networks.
 
+In Julia, a rich ecosystem for thermodynamics and chemical engineering already exists. `Clapeyron.jl` \cite{walker_clapeyronjl_2022}, a mature and comprehensive thermodynamic package, is a central part of this ecosystem. It combines a large number of thermodynamic models (including equations of state (EoS) and Gibbs excess energy ($g^E$) models) with advanced and efficient solvers. Leveraging Julia's excellent extensibility, several packages extend `Clapeyron.jl`, e.g., `EntropyScaling.jl` \cite{schmitt_se-schmittentropyscalingjl_2025} for modeling transport properties, or \href{https://github.com/ClapeyronThermo/Langmuir.jl}{`Langmuir.jl`} \cite{santana_langmuirjl_nodate} for modeling adsorption.
 
-\section{The JuliaCon Article Class}
-\label{sec:documentclass}
-%
-The juliacon class file preserves the standard LATEX{} interface such
-that any document that can be produced using the standard LATEX{}
-article class can also be produced with the class file.\vskip 6pt
-It is likely that the make up will change after file submission. For
-this reason, we ask you to ignore details such as slightly long lines,
-page stretching, or figures falling out of synchronization, as these
-details can be dealt with at a later stage.\vskip 6pt
-Use should be made of symbolic references (\verb|\ref| ) in order to
-protect against late changes of order, etc.
+This talk introduces `MLPROP.jl`, which provides Julia implementations of the thermodynamic models from MLPROP, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. `MLPROP.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models. Due to the excellent extensibility of Julia packages, `MLPROP.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization, e.g., `ModelingToolkit.jl` and `DifferentialEquations.jl`.
 
-\section{USING THE JuliaCon Article CLASS FILE}
-
-If the file \verb|juliacon.cls|  is not already in the appropriate system directory
-for \LaTeX{} files, either arrange for it to be put there or copy
-it to your working directory. The \verb|juliacon|  document class is implemented
-as a complete class, not a document style option. In order to
-use the \verb|juliacon  document class, replace \verb|article|  by \verb|juliacon|  in the
-\verb|\documentclass|  command at the beginning of your document:
-\vskip 6pt
-\begin{centering}
-    \verb|\documentclass{article}|  \end{centering}
-\vskip 6pt
-replace by
-\vskip 6pt
- \verb|\documentclass{juliacon}|  \vskip 6pt
-In general, the following standard document \verb|style|  options should
-{ \itshape not} be used with the {\footnotesize \itshape article} class file:
-\begin{enumerate}
-\item[(1)] \verb|10pt|,  \verb|11pt|,  \verb|12pt|   ? unavailable;
-\item[(2)] \verb|twoside|  (no associated style file) ? \verb|twoside|  is the default;
-\item[(3)] \verb|fleqn|, \verb|leqno|, \verb|titlepage| ? should not be used;
-\end{enumerate}
+--------------------------------------------------------------------------------
 
 \section{Additional Document Style Options}
 \label{sec:additional_doc}
-%
-The following additional style option is available with the \verb|juliacon|  class file:
-\vskip 6pt
-Please place any additional command definitions at the very start of
-the \LaTeX{} file, before the \verb|\begin{document}|. For example, user-defined
-\verb|\def|  and \verb|\newcommand|   commands that define macros for
-technical expressions should be placed here. Other author-defined
-macros should be kept to a minimum.
-\vskip 6pt
-Commands that differ from the standard \LaTeX{} interface, or that
-are provided in addition to the standard interface, are explained in
-this guide. This guide is not a substitute for the \LaTeX{} manual itself.
-Authors planning to submit their papers in \LaTeX{} are advised to use
-\verb|juliacon.cls|  as early as possible in the creation of their files.
 
-%
-%
-%
-%
 \begin{table*}[t]
 \tabcolsep22pt
 \tbl{If necessary, the tables can be extended both columns.}{
@@ -534,7 +477,6 @@ BIBTEX, which is easily invoked via
 \end{verbatim}
 When submitting the document source (.tex) file to external
 parties, the ref.bib file should be sent with it.
-\cite{bezanson2017julia}
 
 \input{bib.tex}
 
