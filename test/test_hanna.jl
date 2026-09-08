@@ -51,6 +51,12 @@ end
         @test γs_i_smiles[2] ≈ exp(lnγs_ref_i[2]) rtol=1e-5
         @test γs_i_smiles[3] ≈ exp(lnγs_ref_i[3]) rtol=1e-5
     end
+
+    # issue #38
+    model_tern = multHANNA(["water", "ethanol", "methanol"]; puremodel=AntoineEqSat)
+    model_bin = multHANNA(["water", "methanol"]; puremodel=AntoineEqSat)
+    @test bubble_pressure(model_tern, 350.0, [0.5, 0.0, 0.5])[1] ≈ bubble_pressure(model_bin, 350.0, [0.5, 0.5])[1] rtol=1e-8
+    @test length(only(split_model(model_tern, [[1, 3]])).params.nn) == length(model_tern.params.nn)
 end
 
 @testitem "diffHANNA" begin
