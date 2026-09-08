@@ -2,7 +2,7 @@ abstract type multHANNAModel <: CL.ActivityModel end
 
 struct multHANNAParam{T,M} <: CL.EoSParam
     emb::SingleParam{Vector{T}}
-    θs::SingleParam{Vector{Vector{T}}}
+    θs::SingleParam{Vector{Matrix{T}}}
     scaler_T::AbstractScaler{T}
     nn::M
     Mw::SingleParam{T}
@@ -122,7 +122,7 @@ function _build_multhanna(
     emb = SingleParam("ChemBERTa embedding", _components, scale.(scaler_emb, BERT.(smiles; is_canonical=true)))
 
     # Calc refined embeddings θs
-    _θs = [[first(smodel.model.theta(emb[i], smodel.ps.theta, smodel.st.theta)) for smodel in smodels] for i in eachindex(_components)]
+    _θs = [[reshape(first(smodel.model.theta(emb[i], smodel.ps.theta, smodel.st.theta)), :, 1) for smodel in smodels] for i in eachindex(_components)]
     θs = SingleParam("Refined embedding", _components, _θs)
 
     params = _build_multhanna_param(MODEL, emb, θs, scaler_T, smodels, _params)
@@ -154,8 +154,9 @@ function CL.excess_gibbs_free_energy(model::multHANNAModel, p, T, z)
     gE_sum = zero(eltype(x)) 
     num_models = length(model.params.nn)
     
+    θs = params.θs.values
     for (i,nn) in enumerate(model.params.nn)
-        _θsi = ntuple(j -> model.params.θs[j][i], length(model))
+        _θsi = [θ[i] for θ in θs]
         gE_sum += nn((T_scaled, x, _θsi),)
     end
     
