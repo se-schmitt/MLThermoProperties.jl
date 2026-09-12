@@ -6,7 +6,7 @@ CollapsedDocStrings = true
 
 ## HANNA
 
-![](assets/HANNA_scheme.svg)
+![](assets/schemes/HANNA_scheme.svg)
 
 HANNA is a hard-constraint neural network model for the excess Gibbs energy ``g^E`` that predicts activity coefficients in a strictly thermodynamically consistent manner [specht_hanna_2024, hoffmann_thermodynamically_2026](@cite).
 It only requires the SMILES of the components and the temperature as input.
@@ -23,7 +23,7 @@ MLThermoProperties.multHANNA
 
 ## mod. UNIFAC 2.0 and UNIFAC 2.0
 
-![](assets/UNIFAC20_scheme.svg)
+![](assets/schemes/UNIFAC20_scheme.svg)
 
 UNIFAC 2.0 and mod. UNIFAC 2.0 are enhanced versions of the classical group-contribution methods UNIFAC and mod. UNIFAC (Dortmund), respectively.
 Missing interaction parameters are predicted using matrix completion, which significantly extends the applicability of the methods and leads to a higher prediction accuracy compared to the original versions [hayer_advancing_2025, hayer_modified_2025](@cite).
@@ -31,7 +31,7 @@ The methods for [UNIFAC 2.0](https://clapeyronthermo.github.io/Clapeyron.jl/stab
 
 ## GRAPPA
 
-![](assets/GRAPPA_scheme.svg)
+![](assets/schemes/GRAPPA_scheme.svg)
 
 GRAPPA is a graph neural network model for predicting vapor pressures and boiling points of pure components [hoffmann_grappahybrid_2025](@cite).
 The model predicts the parameters ``A``, ``B``, and ``C`` of the Antoine equation:
@@ -48,7 +48,7 @@ MLThermoProperties.GRAPPA
 
 ## ESE
 
-![](assets/ESE_scheme.svg)
+![](assets/schemes/ESE_scheme.svg)
 
 ESE is a hybrid model for predicting binary diffusion coefficients at infinite dilution [wagner_hybrid_2026](@cite).
 The model incorporates the Stokes-Einstein equation and ensures a physically consistent temperature dependence of the predicted diffusion coefficients.

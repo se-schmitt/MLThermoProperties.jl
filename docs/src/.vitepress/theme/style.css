@@ -4,18 +4,26 @@ https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/var
 /* https://github.com/vuejs/vitepress/blob/main/template/.vitepress/theme/style.css */
 
 .VPHero .clip {
-  white-space: pre;
   max-width: 600px;
 }
 
-.VPHero .name {
-  font-size: 50px !important;
-  line-height: 1.3;
+.VPHero .image-container .image-src {
+  max-width: 280px;
+  max-height: 280px;
 }
 
-.VPHero .text {
-  font-size: 40px !important;
-  line-height: 1.3;
+@media (min-width: 640px) {
+  .VPHero .image-container .image-src {
+    max-width: 400px;
+    max-height: 400px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHero .image-container .image-src {
+    max-width: 500px;
+    max-height: 500px;
+  }
 }
 
 /* Fonts */

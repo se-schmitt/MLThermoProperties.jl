@@ -4,18 +4,13 @@ abstract type AbstractMultHANNALux{layers} <: AbstractLuxContainerLayer{layers} 
     theta
     alpha
     phi
-    __cache_θs
     gamma
 end
 
-Clapeyron.is_splittable(::multHANNALux) = false
+CL.is_splittable(::Vector{StatefulLuxLayer{V,M,P,S}}) where {V,M<:AbstractMultHANNALux,P,S} = false
 
-function (model::AbstractMultHANNALux)((T, x, embs), ps, st)
+function (model::AbstractMultHANNALux)((T, x, θs), ps, st)
     N = length(x)
-    
-    θs = isnothing(model.__cache_θs) ?
-        [first(model.theta(_emb, ps.theta, st.theta)) for _emb in embs] :
-        model.__cache_θs
 
     similarity = ones(N,N)
     calc_similarity!(similarity, model, θs)
