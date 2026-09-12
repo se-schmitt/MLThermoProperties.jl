@@ -33,6 +33,13 @@ The models utilize different ML architectures, including the chemical language m
 
 In Julia, a rich ecosystem for thermodynamics and chemical engineering already exists. `Clapeyron.jl` \cite{walker_clapeyronjl_2022}, a mature and comprehensive thermodynamic package, is a central part of this ecosystem. It combines a large number of thermodynamic models (including equations of state (EoS) and Gibbs excess energy ($g^E$) models) with advanced and efficient solvers. Leveraging Julia's excellent extensibility, several packages extend `Clapeyron.jl`, e.g., `EntropyScaling.jl` \cite{schmitt_se-schmittentropyscalingjl_2025} for modeling transport properties, or \href{https://github.com/ClapeyronThermo/Langmuir.jl}{`Langmuir.jl`} \cite{santana_langmuirjl_nodate} for modeling adsorption.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.4\columnwidth]{logo.pdf}
+\caption{Logo of `MLThermoProperties.jl`.}
+\label{fig:logo}
+\end{figure}
+
 This paper introduces `MLThermoProperties.jl`, which provides Julia implementations of hybrid thermodynamic models, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. `MLThermoProperties.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models. Due to the excellent extensibility of Julia packages, `MLThermoProperties.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization, e.g., `ModelingToolkit.jl` and `DifferentialEquations.jl`.
 
 % \section{Hybrid Thermodynamic Models}
