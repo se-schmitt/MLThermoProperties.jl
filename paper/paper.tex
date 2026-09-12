@@ -14,8 +14,7 @@
 We present MLThermoProperties.jl, a Julia package that provides a variety of state-of-the-art thermodynamic models that combine modern machine learning methods with physical knowledge. 
 These hybrid models obey hard physical constraints while being more accurate and applicable to a wider scope of substances than established models. 
 MLThermoProperties.jl is built upon the Clapeyron.jl package, leveraging its rich thermodynamic solver ecosystem. 
-The MLThermoProperties.jl models signifi­cantly improve molecular property prediction in various applications in science and engineering, e.g., chemical process engineering. 
-Exemplary applications will be demonstrated in the talk by coupling MLThermoProperties.jl with Julia’s rich ecosystem for scientific modeling and simulation.
+The MLThermoProperties.jl models signifi­cantly improve molecular property prediction in various applications in science and engineering, e.g., chemical process engineering, and can be coupled with Julia’s rich ecosystem for scientific modeling and simulation.
 
 \end{abstract}
 
@@ -25,103 +24,57 @@ Knowledge of thermodynamic properties of fluids is crucial in many fields of eng
 However, experimental data on thermodynamic properties are notoriously scarce due to the high cost and effort of measurements, making reliable prediction models indispensable. 
 In recent years, machine learning (ML) has emerged as a particularly promising approach to thermodynamic modeling \cite{hasse_artificial_2026}.
 
-In our research group, many state-of-the-art thermodynamic ML models are developed under the umbrella of MLPROP, a collection of open-source ML models for molecular property prediction.
-These models, despite being neural networks at their core, are thermodynamically consistent, i.e., they obey hard physical constraints.
-This consistency is either achieved by an appropriate architecture or by exploiting existing thermodynamic models to form new hybrid models.
-Based only on the SMILES code of a substance -- a textual representation of the molecular structure -- the MLPROP models predict multiple thermodynamic properties, outperforming established models in both accuracy and scope \cite{hoffmann_machine-learned_2025}.
+These models, despite being developed using methods from machine learning, are thermodynamically consistent, i.e., they obey hard physical constraints.
+This consistency is either achieved by an appropriate architecture \cite{specht_hanna_2024-1,hoffmann_machine-learned_2025} or by exploiting existing thermodynamic models to form new hybrid models \cite{wagner_hybrid_2026, hayer_advancing_2025,hoffmann_grappahybrid_2025}.
+Based only on the SMILES code of a substance \cite{weininger_smiles_1988} -- a textual representation of the molecular structure -- the MLPROP models predict multiple thermodynamic properties, outperforming established models in both accuracy and scope \cite{hoffmann_machine-learned_2025}.
 Among the covered properties are phase equilibria of pure substances and mixtures \cite{specht_hanna_2024}, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026} that govern molecular mass transfer.
 The models utilize different ML architectures, including the chemical language model ChemBERTa \cite{ahmad_chemberta-2_2022} and molecular graph neural networks.
 
 In Julia, a rich ecosystem for thermodynamics and chemical engineering already exists. `Clapeyron.jl` \cite{walker_clapeyronjl_2022}, a mature and comprehensive thermodynamic package, is a central part of this ecosystem. It combines a large number of thermodynamic models (including equations of state (EoS) and Gibbs excess energy ($g^E$) models) with advanced and efficient solvers. Leveraging Julia's excellent extensibility, several packages extend `Clapeyron.jl`, e.g., `EntropyScaling.jl` \cite{schmitt_se-schmittentropyscalingjl_2025} for modeling transport properties, or \href{https://github.com/ClapeyronThermo/Langmuir.jl}{`Langmuir.jl`} \cite{santana_langmuirjl_nodate} for modeling adsorption.
 
-This talk introduces `MLPROP.jl`, which provides Julia implementations of the thermodynamic models from MLPROP, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. `MLPROP.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models. Due to the excellent extensibility of Julia packages, `MLPROP.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization, e.g., `ModelingToolkit.jl` and `DifferentialEquations.jl`.
+This paper introduces `MLThermoProperties.jl`, which provides Julia implementations of hybrid thermodynamic models, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. `MLThermoProperties.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models. Due to the excellent extensibility of Julia packages, `MLThermoProperties.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization, e.g., `ModelingToolkit.jl` and `DifferentialEquations.jl`.
 
---------------------------------------------------------------------------------
+% \section{Hybrid Thermodynamic Models}
 
-\section{Additional Document Style Options}
-\label{sec:additional_doc}
+\section{Package overview}
 
-\begin{table*}[t]
-\tabcolsep22pt
-\tbl{If necessary, the tables can be extended both columns.}{
-\begin{tabular}{|l|l|c|c|}\hline
-Label & \multicolumn{1}{c|}{Description}
-& Number of Users &
-Number of Queries\\\hline
-Test 1 & Training Data &
-\smash{\raise-7pt\hbox{70}} & 104\\
-\cline{1-2}\cline{4-4}
-Test 2 & Testing Data I & & 105\\\hline
-Test 3 & Testing Data II & 30 & 119\\\hline
-& Total & 100 & 328\\\hline
-\end{tabular}}
-\label{tab:symbols}
-\begin{tabnote}
-This is an example of table footnote.
-\end{tabnote}
-\end{table*}
-% \begin{figure*}[t]
-% \centerline{\includegraphics[width=11cm]{juliagraphs.png}}
-% \caption{If necessary, the images can be extended both columns.}
-%   \label{fig:sample_image}
-% \end{figure*}
+MLThermoProperties.jl implements several hybrid models and makes them accessible to the thermodynamic solvers from Clapeyron.jl.
+This integration simplifies the implementation of new models and enables making use of the existing thermodynamic solvers already implemented in Clapeyron.jl. 
 
-\section{Additional features}
-\label{sec:additional_faci}
-In addition to all the standard \LaTeX{} design elements, the \verb|juliacon|  class file includes the following features:
-In general, once you have used the additional \verb|juliacon.cls| facilities
-in your document, do not process it with a standard \LaTeX{} class
-file.
+\subsection{Models}
 
-\subsection{Titles, Author's Name, and Affiliation}
-\label{subsub:title_auth}
-The title of the article, author's name, and affiliation are used at the
-beginning of the article (for the main title). These can be produced
-using the following code:
+All currently implemented models were developed under the umbrella of MLPROP \cite{hoffmann_mlprop_2025}.
+The following models are currently implemented and validated against their original publication:
 
-\begin{verbatim}
-\title{ This is an example of article title} }
-\author{
-   \large 1st Author \\[-3pt]
-   \normalsize 1st author's affiliation  \\[-3pt]
-    \normalsize 1st line of address \\[-3pt]
-    \normalsize 2nd line of address \\[-3pt]
-    \normalsize	1st author's email address \\[-3pt]
-  \and
-   \large 2nd Author \\[-3pt]
-   \normalsize 2nd author's affiliation  \\[-3pt]
-    \normalsize 1st line of address \\[-3pt]
-    \normalsize 2nd line of address \\[-3pt]
-    \normalsize	2nd author's email address \\[-3pt]
-\and
-   \large 3rd Author \\[-3pt]
-   \normalsize 3rd author's affiliation  \\[-3pt]
-    \normalsize 1st line of address \\[-3pt]
-    \normalsize 2nd line of address \\[-3pt]
-    \normalsize	3rd author's email address \\[-3pt]
-}
-\maketitle
-\end{verbatim}
+\begin{description}
+    \item[HANNA] Hard-constraint neural network for the excess Gibbs energy $g^E$ of liquid mixtures, from which activity coefficients are obtained in a thermodynamically consistent manner \cite{specht_hanna_2024-1}. Only the SMILES of the components and the temperature are required as input. Two versions are available: `ogHANNA`, the original model for binary mixtures \cite{specht_hanna_2024-1}, and `HANNA` (alias `multHANNA`), which is trained on VLE and LLE data and applicable to multi-component mixtures \cite{hoffmann_thermodynamically_2026}.
+    \item[UNIFAC 2.0] Machine-learning-enhanced versions of the group-contribution methods UNIFAC and mod. UNIFAC (Dortmund) for predicting activity coefficients \cite{hayer_advancing_2025,hayer_modified_2025}. Missing group-interaction parameters are completed by matrix completion, which extends the applicability and accuracy of the methods. Both are implemented directly in `Clapeyron.jl`.
+    \item[GRAPPA] Graph neural network for the vapor pressure of pure components, predicting the parameters of the Antoine equation and thereby also boiling points \cite{hoffmann_grappahybrid_2025}. The SMILES of the component is the only input.
+    \item[ESE] Hybrid model for binary diffusion coefficients at infinite dilution that incorporates the Stokes-Einstein equation, ensuring a physically consistent temperature dependence \cite{wagner_hybrid_2026}. It requires the SMILES of solute and solvent as well as a viscosity model for the solvent.
+    \item[ChemBERTa] Chemical language model that encodes a SMILES into a molecular embedding \cite{ahmad_chemberta-2_2022}, which serves as molecular input representation in HANNA and ESE. It is provided by the registered package `ChemBERTa.jl` and can also be used independently.
+\end{description}
 
-\subsection{Writing Julia code}
+\subsection{Integration in Julia's Thermodynamic Ecosystem}
 
-A special environment is already defined for Julia code,
-built on top of \textit{listings} and \textit{jlcode}.
+All models are implemented by extending a property function from 
+Clapeyron.jl or EntropyScaling.jl and making use of existing thermodynamic solvers.
+This is exemplarily explained for the \texttt{HANNA} model and the \texttt{ESE} model in the following.
+For the Gibbs excess energy model \texttt{HANNA}, a custom function \texttt{Clapeyron.gibbs\_excess\_energy(model::HANNA,p,T,z)} is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Ref. \cite{hoffmann_machine-learned_2025}).
+This is the only thermodynamic property that needs to be defined.
+Derived quantities like the activity coefficients $\gamma_i$ and the excess enthalpy $h^E$ can be calculated based on the HANNA model by Clapeyron's property functions, i.e. \texttt{Clapeyron.activity\_coefficient(model::HANNA,p,T,z)} and \texttt{Clapeyron.excess(model::HANNA,p,T,z,enthalpy)}, without further ado.
+This exploits the relation between those properties which can be calculated as derivations of $G^E$, i.e. 
+\begin{align}
+\ln \gamma_i &= \frac{1}{RT} \frac{\partial G^E}{\partial n_i} \\
+H^E &= -RT^2 \frac{\partial G^E/RT}{\partial T}
+\end{align}
 
-\begin{verbatim}
-\begin{lstlisting}[
-    language = Julia, 
-    numbers=left, 
-    label={lst:exmplg}, 
-    caption={Example Code Block.}
-]
-using Plots
+with GRAPPA (which defines a custom function for \texttt{Clapeyron.saturation\_pressure(model,T)}).
+For prediction of diffusion coefficients at infinite dilution, ESE extends EntropyScaling.jl through defining a custom 
 
-x = -3.0:0.01:3.0
-y = rand(length(x))
-plot(x, y)
-\end{lstlisting}
-\end{verbatim}
+\section{Example Application}
+
+\subsection{Calculating Mixture Properties}
+
 \begin{lstlisting}[
     language = Julia, 
     numbers=left, 
@@ -135,348 +88,17 @@ y = rand(length(x))
 plot(x, y)
 \end{lstlisting}
 
-
-\subsection{Abstracts, Key words, term etc...}
-\label{subsub:abs_key_etc}
-
-At the beginning of your article, the title should be generated
-in the usual way using the \verb|\maketitle|  command. For genaral tem and keywords use
-\verb|\terms|,
-\verb|\keywords|  commands respectively. The abstract should be enclosed
-within an abstract environment, All these environment
-can be produced using the following code:
-\begin{verbatim}
-\terms{Experimentation, Human Factors}
-
-\keywords{Face animation, image-based modelling...}
-
-\begin{abstract}
-In this paper, we propose a new method for the
-systematic determination of the model's base of
-time varying delay system. This method based on
-the construction of the classification data related
-to the considered system. The number, the orders,
-the time delay and the parameters of the local
-models are generated automatically without any
-knowledge about the full operating range of the
-process. The parametric identification of the local
-models is realized by a new recursive algorithm for
-on line identification of systems with unknown time
-delay. The proposed algorithm allows simultaneous
-estimation of time delay and parameters of
-discrete-time systems. The effectiveness of
-the new method has been illustrated through
-simulation.
-\end{abstract}
-
-\end{verbatim}
-
-\section{Some guidelines}
-\label{sec:some_guide}
-The following notes may help you achieve the best effects with the
-\verb|juliacon|  class file.
-
-\subsection{Sections}
-\label{subsub:sections}
-\LaTeXe{}  provides four levels of section headings and they are all
-defined in the \verb|juliacon|  class file:
-\begin{itemize}
-\item \verb|\section|
-\item \verb|\subsection|
-\item \verb|\subsubsection|
-\item \verb|\paragraph|
-\end{itemize}
-Section headings are automatically converted to allcaps style.
-\subsection{Lists}
-\label{sec:lists}
-%
-The \verb|juliacon|   class file provides unnumbered lists using the
-\verb|unnumlist|  environment for example,
-
-\begin{unnumlist}
-\item First unnumbered item which has no label and is indented from the
-left margin.
-\item Second unnumbered item.
-\item Third unnumbered item.
-\end{unnumlist}
-The unnumbered list which has no label and is indented from the
-left margin. was produced by:
-\begin{verbatim}
-\begin{unnumlist}
-\item First unnumbered item...
-\item Second unnumbered item...
-\item Third unnumbered item...
-\end{unnumlist}
-\end{verbatim}
-
-The \verb|juliacon|  class file also provides hyphen list using the
-\verb|itemize|  environment for example,
-\begin{itemize}
-\item First unnumbered bulleted item which has no label and is indented
-from the left margin.
-\item Second unnumbered bulleted item.
-\item Third unnumbered bulleted item which has no label and is indented
-from the left margin.
-\end{itemize}
-was produced by:
-\begin{verbatim}
-\begin{itemize}
-\item First item...
-\item Second item...
-\item Third item...
-\end{itemize}
-\end{verbatim}
-
-Numbered list is also provided in acmtog class file using the
-enumerate environment for example,
-\begin{enumerate}
-\item The attenuated and diluted stellar radiation.
-\item Scattered radiation, and
-\item Reradiation from other grains.
-\end{enumerate}
-
-was produced by:
-\begin{verbatim}
-\begin{enumerate}
-\item The attenuated...
-\item Scattered radiation, and...
-\item Reradiation from other grains...
-\end{enumerate}
-\end{verbatim}
-\subsection{Illustrations (or figures)}
-\label{subsub:sec_Illus}
-The \verb|juliacon|  class file will cope with most of the positioning of
-your illustrations and you should not normally use the optional positional
-qualifiers on the \verb|figure|  environment that would override
-these decisions.
-\vskip 6pt
-
-%
-\begin{figure}[t]
-% \centerline{\includegraphics[width=4cm]{juliagraphs.png}}
-\caption{This is example of the image in a column.}
-	\label{fig:sample_figure}
-\end{figure}
-
-The figure \ref{fig:sample_figure} is taken from the JuliaGraphs
-organization \footnote{https://github.com/JuliaGraphs}.
-
-Figure captions should be \emph{below} the figure itself, therefore the
-\verb|\caption|  command should appear after the figure or space left for
-an illustration. For example, Figure 1 is produced using the following
-commands:
-
-\begin{verbatim}
-\begin{figure}
-\centerline{\includegraphics[width=20pc]{Graphics.eps}}
-\caption{An example of the testing process for a
-binary tree. The globa null hypothesis is tested
-first at level $\alpha$ (a), and the level of
-individual variables is reached last (d). Note
-that individual hypotheses can be tested at
-level $\alpha/4$ and not $\alpha/8$ as one might
-expect at first.}
-\label{sample-figure_2}
-\end{figure}
-\end{verbatim}
-Figures can be resized using first and second argument of
-\verb|\includegraphics|   command. First argument is used for modifying
-figure height and the second argument is used for modifying
-figure width respectively.
-\vskip 6pt
-Cross-referencing of figures, tables, and numbered, displayed
-equations using the \verb|\label|  and \verb|\ref|   commands is encouraged.
-For example, in referencing Figure 1 above, we used
-\verb|Figure~\ref{sample-figure}|
-
- \subsection{Tables}
-\label{subsub:sec_Tab}
-The \verb|juliacon|   class file will cope with most of the positioning of
-your tables and you should not normally use the optional positional qualifiers on the table environment which would override these
-decisions. Table captions should be at the top.
-\begin{verbatim}
-\begin{table}
-\tbl{Tuning Set and Testing Set}{
-\begin{tabular}{|l|l|c|c|}\hline
-Label & \multicolumn{1}{c|}{Description}
-& Number of Users &
-Number of Queries\\\hline
-Train70 & Training Data &
-\smash{\raise-7pt\hbox{70}} & 104\\
-\cline{1-2}\cline{4-4}
-Test70 & Testing Data I & & 105\\\hline
-Test30 & Testing Data II & 30 & 119\\\hline
-& Total & 100 & 328\\\hline
-\end{tabular}}
-\end{table}
-\end{verbatim}
-
-\begin{table}
-\tbl{Tuning Set and Testing Set}{
-\begin{tabular}{|l|l|c|c|}\hline
-Label & \multicolumn{1}{c|}{Description}
-& Number of Users &
-Number of Queries\\\hline
-Test 1 & Training Data &
-\smash{\raise-7pt\hbox{70}} & 104\\
-\cline{1-2}\cline{4-4}
-Test 2 & Testing Data I & & 105\\\hline
-Test 3 & Testing Data II & 30 & 119\\\hline
-& Total & 100 & 328\\\hline
-\end{tabular}}
-\end{table}
-\subsection{Landscaping Pages}
-\label{subsub:landscaping_pages}
-If a table is too wide to fit the standard measure, it may be turned,
-with its caption, to 90 degrees. Landscape tables cannot be produced
-directly using the \verb|juliacon|   class file because \TeX{} itself cannot
-turn the page, and not all device drivers provide such a facility.
-The following procedure can be used to produce such pages.
-\vskip 6pt
-Use the package \verb|rotating|   in your document and change the coding
-from
-\begin{verbatim}
-\begin{table}...\end{table}
-to
-\begin{sidewaystable}...\end{sidewaystable}
-and for figures
-\begin{figure}...\end{figure}
-to
-\begin{sidewaysfigure}...\end{sidewaysfigure}
-\end{verbatim}
-
-environments in your document to turn your table on the appropriate
-page of your document. For instance, the following code prints
-a page with the running head, a message half way down and the
-table number towards the bottom.
-\begin{verbatim}
-\begin{sidewaystable}
-\tbl{Landscape table caption to go here.}{...}
-\label{landtab}
-\end{sidewaystable}
-\end{verbatim}
-
-\subsection{Double Column Figure and Tables}
-\label{subsub:double_fig_tab}
-For generating the output of figures and tables in double column
-we can use the following coding:
-
-\begin{enumerate}
-\item For Figures:
-\begin{verbatim}
-\begin{figure*}...\end{figure*}
-\end{verbatim}
-\item For landscape figures:
-\begin{verbatim}
-\begin{sidewaysfigure*}...\end{sidewaysfigure*}
-\end{verbatim}
-\item For Tables:
-\begin{verbatim}
-\begin{table*}...\end{table*}
-\end{verbatim}
-\item For landscape tables:
-\begin{verbatim}
-\begin{sidewaystable*}...\end{sidewaystable*}
-\end{verbatim}
-\end{enumerate}
-
-\subsection{Typesetting Mathematics}
-\label{subsub:type_math}
-The \verb|juliacon| class file will set displayed mathematics with center to
-the column width, provided that you use the \LaTeXe{} standard of
-open and closed square brackets as delimiters.
-The equation
-\[
-\sum_{i=1}^p \lambda_i = (S)
-\]
-
-was typeset using the acmtog class file with the commands
-
-\begin{verbatim}
-\[
-\sum_{i=1}^p \lambda_i = (S)
-\]
-\end{verbatim}
-
-For display equations, cross-referencing is encouraged. For example,
-\begin{verbatim}
-\begin{equation}
-(n-1)^{-1} \sum^n_{i=1} (X_i - \overline{X})^2.
-\label{eq:samplevar}
-\end{equation}
-Equation~(\ref{eq:samplevar}) gives the formula for
-sample variance.
-\end{verbatim}
-The following output is generated with the above coding:
-\begin{equation}
-(n-1)^{-1} \sum^n_{i=1} (X_i - \overline{X})^2.
-\label{eq:samplevar}
-\end{equation}
-Equation~(\ref{eq:samplevar}) gives the formula for
-sample variance.
+\subsection{Chemical Process Simulation}
 
 
-\subsection{Enunciations}
-\label{subsub:enunciation}
-The \verb|juliacon|   class file generates the enunciations with the help of
-the following commands:
-\begin{verbatim}
-\begin{theorem}...\end{theorem}
-\begin{strategy}...\end{strategy}
-\begin{property}...\end{property}
-\begin{proposition}...\end{proposition}
-\begin{lemma}...\end{lemma}
-\begin{example}...\end{example}
-\begin{proof}...\end{proof}
-\begin{definition}...\end{definition}
-\begin{algorithm}...\end{algorithm}
-\begin{remark}...\end{remark}
-\end{verbatim}
-The above-mentioned coding can also include optional arguments
-such as
-\begin{verbatim}
-\begin{theorem}[...]. Example for theorem:
-\begin{theorem}[Generalized Poincare Conjecture]
-Four score and seven ... created equal.
-\end{theorem}
-\end{verbatim}
 
-\begin{theorem}[Generalized Poincare Conjecture]
-Four score and seven years ago our fathers brought forth,
-upon this continent, a new nation, conceived in Liberty,
- and dedicated to the proposition that all men are
-created equal.
-\end{theorem}
+\section{Conclusions}
 
 
-\subsection{Extract}
-\label{subsub:extract}
-Extract environment should be coded within
-\begin{verbatim}
-\begin{extract}..\end{extract}
-\end{verbatim}
 
-\subsection{Balancing column at last page}
-\label{subsub:Balance}
-For balancing the both column length at last page use :
-\begin{verbatim}
-\vadjust{\vfill\pagebreak}
-\end{verbatim}
+\section{Acknowledgements}
 
-%\vadjust{\vfill\pagebreak}
 
-at appropriate place in your \TeX{} file or in bibliography file.
-
-\section{Handling references}
-\label{subsub:references}
-References are most easily (and correctly) generated using the
-BIBTEX, which is easily invoked via
-\begin{verbatim}
-\bibliographystyle{juliacon}
-\bibliography{ref}
-\end{verbatim}
-When submitting the document source (.tex) file to external
-parties, the ref.bib file should be sent with it.
 
 \input{bib.tex}
 
