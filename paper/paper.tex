@@ -1,6 +1,7 @@
 
 % JuliaCon proceedings template
 \documentclass{juliacon}
+\usepackage{amsmath}
 \setcounter{page}{1}
 
 \begin{document}
@@ -51,7 +52,7 @@ The following models are currently implemented and validated against their origi
     \item[UNIFAC 2.0] Machine-learning-enhanced versions of the group-contribution methods UNIFAC and mod. UNIFAC (Dortmund) for predicting activity coefficients \cite{hayer_advancing_2025,hayer_modified_2025}. Missing group-interaction parameters are completed by matrix completion, which extends the applicability and accuracy of the methods. Both are implemented directly in `Clapeyron.jl`.
     \item[GRAPPA] Graph neural network for the vapor pressure of pure components, predicting the parameters of the Antoine equation and thereby also boiling points \cite{hoffmann_grappahybrid_2025}. The SMILES of the component is the only input.
     \item[ESE] Hybrid model for binary diffusion coefficients at infinite dilution that incorporates the Stokes-Einstein equation, ensuring a physically consistent temperature dependence \cite{wagner_hybrid_2026}. It requires the SMILES of solute and solvent as well as a viscosity model for the solvent.
-    \item[ChemBERTa] Chemical language model that encodes a SMILES into a molecular embedding \cite{ahmad_chemberta-2_2022}, which serves as molecular input representation in HANNA and ESE. It is provided by the registered package `ChemBERTa.jl` and can also be used independently.
+    \item[ChemBERTa] Chemical language model that encodes a SMILES into a molecular embedding \cite{ahmad_chemberta-2_2022}, which serves as molecular input representation in HANNA. It is provided by the registered package `ChemBERTa.jl` and can also be used independently.
 \end{description}
 
 \subsection{Integration in Julia's Thermodynamic Ecosystem}
@@ -61,15 +62,25 @@ Clapeyron.jl or EntropyScaling.jl and making use of existing thermodynamic solve
 This is exemplarily explained for the \texttt{HANNA} model and the \texttt{ESE} model in the following.
 For the Gibbs excess energy model \texttt{HANNA}, a custom function \texttt{Clapeyron.gibbs\_excess\_energy(model::HANNA,p,T,z)} is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Ref. \cite{hoffmann_machine-learned_2025}).
 This is the only thermodynamic property that needs to be defined.
-Derived quantities like the activity coefficients $\gamma_i$ and the excess enthalpy $h^E$ can be calculated based on the HANNA model by Clapeyron's property functions, i.e. \texttt{Clapeyron.activity\_coefficient(model::HANNA,p,T,z)} and \texttt{Clapeyron.excess(model::HANNA,p,T,z,enthalpy)}, without further ado.
+Derived quantities like the activity coefficients $\gamma_i$ and the excess enthalpy $H^E$ can be calculated based on the HANNA model by Clapeyron's property functions, i.e. \texttt{Clapeyron.activity\_coefficient(model::HANNA,p,T,z)} and \texttt{Clapeyron.excess(model::HANNA,p,T,z,enthalpy)}, without further ado.
 This exploits the relation between those properties which can be calculated as derivations of $G^E$, i.e. 
+
 \begin{align}
-\ln \gamma_i &= \frac{1}{RT} \frac{\partial G^E}{\partial n_i} \\
-H^E &= -RT^2 \frac{\partial G^E/RT}{\partial T}
+\ln \gamma_i &= \frac{1}{RT} \left(\frac{\partial G^E}{\partial n_i}\right)_{T,p,n_{j\neq i}} \\
+H^E &= -RT^2 \left(\frac{\partial \left(G^E/RT\right)}{\partial T}\right)_{p,\bm{n}}.
 \end{align}
 
-with GRAPPA (which defines a custom function for \texttt{Clapeyron.saturation\_pressure(model,T)}).
-For prediction of diffusion coefficients at infinite dilution, ESE extends EntropyScaling.jl through defining a custom 
+The \texttt{ESE} model follows the same principle, but extends \texttt{EntropyScaling.jl} instead.
+The only method implemented evaluates the Stokes-Einstein equation corrected by a factor $b_{ij}$, which a neural network ensemble predicts from molecular descriptors of solute $i$ and solvent $j$ \cite{wagner_hybrid_2026}, i.e.
+
+\begin{equation}
+D_{ij}^\infty = b_{ij}\,\frac{k_\mathrm{B}T}{6\pi\,\eta_j(p,T)\,r_i}
+\end{equation}
+
+with the Boltzmann constant $k_\mathrm{B}$ and the hydrodynamic radius $r_i$ of the solute.
+Since $b_{ij}$ depends on the components only, it is evaluated once when the model is constructed and the temperature dependence is dictated entirely by the Stokes-Einstein equation, which enforces physical consistency.
+The solvent viscosity $\eta_j$ is obtained by calling \texttt{EntropyScaling.viscosity(model,p,T)} on a viscosity model supplied by the user, so that any model of \texttt{EntropyScaling.jl} can be combined with \texttt{ESE}, e.g., a substance-specific reference correlation (\texttt{RefpropRES}), a group-contribution entropy scaling model (\texttt{GCES}), or a constant experimental viscosity (\texttt{ConstantModel}).
+Based on this single method, \texttt{EntropyScaling.inf\_diffusion\_coefficient} is readily available for \texttt{ESE}, returning the diffusion coefficients of all component pairs or of an individual solute-solvent pair.
 
 \section{Example Application}
 
