@@ -93,18 +93,27 @@ Based on this single method, \texttt{EntropyScaling.inf\_diffusion\_coefficient}
 
 \subsection{Calculating Mixture Properties}
 
-\begin{lstlisting}[
-    language = Julia, 
-    numbers=left, 
-    label={lst:exmplg}, 
-    caption={Example Code Block.}
-]
-using Plots
+The following example computes the isothermal $p$-$xy$ diagram of the system tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, using \texttt{HANNA} for the activity coefficients and \texttt{GRAPPA} for the pure-component vapor pressures (Listing \ref{lst:pxy}).
+Both models are constructed from the component names only, which are resolved to SMILES through the Clapeyron.jl database.
+The resulting phase diagram is shown in Figure \ref{fig:pxy}.
 
-x = -3.0:0.01:3.0
-y = rand(length(x))
-plot(x, y)
-\end{lstlisting}
+\lstinputlisting[
+    language = Julia,
+    numbers=left,
+    label={lst:pxy},
+    caption={Calculation of the $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at 298.15 K with HANNA and GRAPPA.}
+]{examples/pxy_diagram.jl}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{examples/pxy_diagram.pdf}
+\caption{Predicted $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, obtained with HANNA (activity coefficients) and GRAPPA (pure-component vapor pressures).}
+\label{fig:pxy}
+\end{figure}
+
+\subsection{Calculating Mixture Properties}
+
+
 
 \subsection{Chemical Process Simulation}
 
