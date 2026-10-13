@@ -1,6 +1,7 @@
 include("utils.jl")
 
 include("ese.jl")
+include("HADES/hades.jl")
 include("GRAPPA/grappa.jl")
 include("HANNA/hanna.jl")
 
