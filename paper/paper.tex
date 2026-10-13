@@ -67,7 +67,7 @@ The following models are currently implemented and validated against their origi
 All models are implemented by extending a property function from 
 Clapeyron.jl or EntropyScaling.jl and making use of existing thermodynamic solvers.
 This is exemplarily explained for the \texttt{HANNA} model and the \texttt{ESE} model in the following.
-For the Gibbs excess energy model \texttt{HANNA}, a custom function \texttt{Clapeyron.gibbs\_excess\_energy(model::HANNA,p,T,z)} is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Ref. \cite{hoffmann_machine-learned_2025}).
+For the Gibbs excess energy model \texttt{HANNA}, a custom function \texttt{Clapeyron.excess\_gibbs\_free\_energy(model::HANNA,p,T,z)} is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Ref. \cite{hoffmann_machine-learned_2025}).
 This is the only thermodynamic property that needs to be defined.
 Derived quantities like the activity coefficients $\gamma_i$ and the excess enthalpy $H^E$ can be calculated based on the HANNA model by Clapeyron's property functions, i.e. \texttt{Clapeyron.activity\_coefficient(model::HANNA,p,T,z)} and \texttt{Clapeyron.excess(model::HANNA,p,T,z,enthalpy)}, without further ado.
 This exploits the relation between those properties which can be calculated as derivations of $G^E$, i.e. 
@@ -76,6 +76,9 @@ This exploits the relation between those properties which can be calculated as d
 \ln \gamma_i &= \frac{1}{RT} \left(\frac{\partial G^E}{\partial n_i}\right)_{T,p,n_{j\neq i}} \\
 H^E &= -RT^2 \left(\frac{\partial \left(G^E/RT\right)}{\partial T}\right)_{p,\bm{n}}.
 \end{align}
+
+The derivatives are evaluated by automatic differentiation, so no analytical expressions have to be supplied.
+Note that the excess enthalpy is calculated as a mixing property, i.e., the pure-component model passed via the \texttt{puremodel} keyword must provide residual properties; a cubic EoS such as \texttt{PR} is sufficient.
 
 The \texttt{ESE} model follows the same principle, but extends \texttt{EntropyScaling.jl} instead.
 The only method implemented evaluates the Stokes-Einstein equation corrected by a factor $b_{ij}$, which a neural network ensemble predicts from molecular descriptors of solute $i$ and solvent $j$ \cite{wagner_hybrid_2026}, i.e.
@@ -89,12 +92,64 @@ Since $b_{ij}$ depends on the components only, it is evaluated once when the mod
 The solvent viscosity $\eta_j$ is obtained by calling \texttt{EntropyScaling.viscosity(model,p,T)} on a viscosity model supplied by the user, so that any model of \texttt{EntropyScaling.jl} can be combined with \texttt{ESE}, e.g., a substance-specific reference correlation (\texttt{RefpropRES}), a group-contribution entropy scaling model (\texttt{GCES}), or a constant experimental viscosity (\texttt{ConstantModel}).
 Based on this single method, \texttt{EntropyScaling.inf\_diffusion\_coefficient} is readily available for \texttt{ESE}, returning the diffusion coefficients of all component pairs or of an individual solute-solvent pair.
 
+\subsection{Extending the Package}
+
+The same mechanism is the intended way to add new models.
+Listing \ref{lst:newmodel} shows a complete minimal $g^E$ model: a struct holding the components, the model parameters, and the pure-component models, together with a single method for the excess Gibbs energy.
+Nothing else is required -- activity coefficients, excess properties, and phase equilibria are immediately available through the property functions and solvers of Clapeyron.jl.
+In the models of MLThermoProperties.jl, the parameters are the weights of a neural network and the returned expression is its forward pass, but the interface is the same.
+
+\lstinputlisting[
+    language = Julia,
+    numbers=left,
+    label={lst:newmodel},
+    caption={A minimal $g^E$ model extending Clapeyron.jl.}
+]{examples/new_model.jl}
+
+\subsection{Validation and Performance}
+
+All models are validated against the reference implementations of the original publications in the test suite of the package, which calls the original Python code through PythonCall.jl.
+For HANNA, the activity coefficients of the Julia and the Python implementation agree within a maximum relative deviation of $1.4 \cdot 10^{-6}$ over the tested systems; the Antoine parameters predicted by GRAPPA agree with the published values within a relative tolerance of $10^{-4}$.
+The residual deviations are of the order of the single-precision arithmetic used in the neural networks.
+
+Table \ref{tab:timings} lists execution times of typical calls for the binary system tetrachloromethane + \textit{tert}-butanol at 298.15 K.
+The cost of the graph neural network of GRAPPA is paid once when the model is constructed, since it predicts the Antoine parameters of the pure components; every subsequent vapor-pressure evaluation is then a simple correlation.
+The evaluation of HANNA, in contrast, enters every solver iteration and accounts for roughly half of the time of a bubble-point calculation.
+With about one millisecond per bubble point, the models are fast enough to be called inside iterative flowsheet solvers or the right-hand side of a differential equation.
+
+\begin{table}[t]
+\centering
+\caption{Execution times of typical calls for the system tetrachloromethane + \textit{tert}-butanol at 298.15 K with HANNA and GRAPPA, measured on an Intel Core Ultra 5 235U with Julia 1.13.}
+\label{tab:timings}
+\begin{tabular}{ll}
+\hline
+Call & Time \\
+\hline
+Excess Gibbs energy $G^E$ & 245 $\mu$s \\
+Activity coefficients $\gamma_i$ & 577 $\mu$s \\
+Excess enthalpy $H^E$ & 467 $\mu$s \\
+Vapor pressure $p^{\mathrm{s}}$ (GRAPPA) & 0.1 $\mu$s \\
+Bubble pressure & 1.2 ms \\
+Model construction (once) & 53 ms \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{Example Application}
 
 \subsection{Calculating Mixture Properties}
 
 The following example computes the isothermal $p$-$xy$ diagram of the system tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, using \texttt{HANNA} for the activity coefficients and \texttt{GRAPPA} for the pure-component vapor pressures (Listing \ref{lst:pxy}).
 Both models are constructed from the component names only, which are resolved to SMILES through the Clapeyron.jl database.
+The vapor-liquid equilibrium is calculated with the $\gamma$-$\varphi$ approach; assuming an ideal gas phase and neglecting the Poynting correction, it reduces to the extended Raoult's law
+
+\begin{equation}
+p \, y_i = x_i \, \gamma_i(\bm{x},T) \, p_i^{\mathrm{s}}(T),
+\end{equation}
+
+where $x_i$ and $y_i$ are the mole fractions of component $i$ in the liquid and the vapor phase, respectively.
+The activity coefficients $\gamma_i$ are supplied by HANNA and the vapor pressures $p_i^{\mathrm{s}}$ by GRAPPA, while the phase-equilibrium solver is taken from Clapeyron.jl.
+Since the pure-component model is a free choice, GRAPPA can be replaced by a cubic or multiparameter EoS without changing the rest of the code.
 The resulting phase diagram is shown in Figure \ref{fig:pxy}.
 
 \lstinputlisting[
@@ -111,17 +166,69 @@ The resulting phase diagram is shown in Figure \ref{fig:pxy}.
 \label{fig:pxy}
 \end{figure}
 
-\subsection{Calculating Mixture Properties}
+\subsection{Diffusion Coefficients}
 
+Transport properties are accessed in the same way, but through EntropyScaling.jl.
+Listing \ref{lst:ese} computes the diffusion coefficients at infinite dilution of ethanol in \textit{n}-decane and of \textit{n}-decane in ethanol between 280 K and 340 K.
+The \texttt{ESE} model is again built from the component names alone; the solvent viscosity required by the Stokes-Einstein equation is taken from the default \texttt{RefpropRES} correlations, which can be exchanged for a group-contribution model or a constant experimental value through the \texttt{vismodel} keyword.
+The two curves in Figure \ref{fig:diff} differ by about one order of magnitude, which reflects the different viscosities of the two solvents.
 
+\lstinputlisting[
+    language = Julia,
+    numbers=left,
+    label={lst:ese},
+    linerange={1-11},
+    caption={Diffusion coefficients at infinite dilution in the system ethanol + \textit{n}-decane with ESE (plotting omitted).}
+]{examples/diffusion_coefficients.jl}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{examples/diffusion_coefficients.pdf}
+\caption{Predicted diffusion coefficients at infinite dilution of ethanol in \textit{n}-decane and of \textit{n}-decane in ethanol at $p = 1$ bar, obtained with ESE and the \texttt{RefpropRES} viscosity correlations.}
+\label{fig:diff}
+\end{figure}
+
+\subsection{Fitting Classical Models}
+
+Established process simulators expect the parameters of classical $g^E$ models rather than neural networks.
+The predictions of the ML models can therefore be condensed into such a model by a parameter fit.
+Listing \ref{lst:nrtl} fits the three parameters $\tau_{12}$, $\tau_{21}$, and $\alpha$ of the NRTL model \cite{renon_local_1968} to the activity coefficients predicted by HANNA for tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, minimizing
+
+\begin{equation}
+\mathcal{L} = \frac{1}{2K} \sum_{k=1}^{K} \sum_{i=1}^{2} \left( \ln \gamma_i^{\mathrm{NRTL}}\left(x_i^k, T\right) - \ln \gamma_i^{\mathrm{pred}}\left(x_i^k, T\right) \right)^2
+\end{equation}
+
+over $K = 21$ compositions.
+Both the ML model and NRTL are Clapeyron.jl models, so the same \texttt{activity\_coefficient} call serves both the prediction and the fit, and the optimizer is taken from Optim.jl \cite{mogensen_optim_2018}.
+The fit yields $\tau_{12} = 1.873$, $\tau_{21} = 0.447$, and $\alpha = 0.578$ and reproduces the predictions of HANNA within $0.021$ in $\ln \gamma_i$ (Figure \ref{fig:nrtl}).
+
+\lstinputlisting[
+    language = Julia,
+    numbers=left,
+    label={lst:nrtl},
+    linerange={1-23},
+    caption={Fit of the NRTL model to activity coefficients predicted by HANNA (plotting omitted).}
+]{examples/nrtl_fit.jl}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{examples/nrtl_fit.pdf}
+\caption{Logarithmic activity coefficients of tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K predicted by HANNA (symbols) and the fitted NRTL model (lines).}
+\label{fig:nrtl}
+\end{figure}
 
 \subsection{Chemical Process Simulation}
 
-
+% TODO: batch distillation example (script supplied by the authors)
 
 \section{Conclusions}
 
+MLThermoProperties.jl makes hybrid thermodynamic models that combine machine learning with physical knowledge available in Julia.
+By implementing each model as an extension of a single property function of Clapeyron.jl or EntropyScaling.jl, the models inherit the complete solver ecosystem of these packages: activity coefficients, excess properties, and phase equilibria follow from one machine-learned expression for the excess Gibbs energy, and derived properties are obtained by automatic differentiation without analytical derivatives.
+The same mechanism keeps the package open for new models, which require little more than a struct and one method.
 
+The models implemented here are also accessible through the MLPROP web interface \cite{hoffmann_mlprop_2025}, which is aimed at quick interactive calculations of single systems.
+MLThermoProperties.jl complements this by making the same models available inside automated workflows: they can be called in loops, embedded in process models, fitted to, differentiated through, and combined with the wider Julia ecosystem for scientific modeling and simulation, as demonstrated above.
 
 \section{Acknowledgements}
 

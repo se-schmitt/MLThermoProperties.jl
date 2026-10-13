@@ -13,9 +13,9 @@ for (i, x) in enumerate(x₁)
 end
 
 fig = Figure(size=(400, 280), fontsize=14)
+xlab = L"x_1,\,y_1 \;/\; \mathrm{mol\,mol^{-1}}"
 ax = Axis(fig[1,1]; limits=((0,1), nothing),
-    xlabel=L"x_1,\,y_1 \;/\; \mathrm{mol\,mol^{-1}}",
-    ylabel=L"p \;/\; \mathrm{bar}")
+    xlabel=xlab, ylabel=L"p \;/\; \mathrm{bar}")
 lines!(ax, x₁, p; color=:blue, label="bubble")
 lines!(ax, y₁, p; color=:red, label="dew")
 axislegend(ax; position=:lt, framevisible=false)
