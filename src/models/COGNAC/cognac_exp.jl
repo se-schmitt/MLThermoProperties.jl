@@ -33,7 +33,7 @@ COGNACexp(components; kwargs...) = _cognac(COGNACexp, components; kwargs...)
 - `puremodel`: model to calculate pure pressure-dependent properties
 
 ## Description
-COGNAC (local-COmposition Graph Neural network for the prediction of Activity Coefficients) model [hoffmann_cognac_2026](@cite) for predicting activity coefficients (explicit version). Both `COGNAC` and `COGNACexp` can be used. The mod. UNIFAC (Dortmund) parameters ``R_a`` and ``Q_a`` (per atom) and ``a_{ab}``, ``b_{ab}``, and ``c_{ab}`` (per atom pair) are predicted by a graph neural network. The parameters are valid only for the mixture they were built for; `COGNACexp` therefore predicts them at model construction. The group activity coefficients then follow from the closed-form mod. UNIFAC equations.
+COGNAC (local-COmposition Graph Neural network for the prediction of Activity Coefficients) model [hoffmann_learning_2026](@cite) for predicting activity coefficients (explicit version). Both `COGNAC` and `COGNACexp` can be used. The mod. UNIFAC (Dortmund) parameters ``R_a`` and ``Q_a`` (per atom) and ``a_{ab}``, ``b_{ab}``, and ``c_{ab}`` (per atom pair) are predicted by a graph neural network. The parameters are valid only for the mixture they were built for; `COGNACexp` therefore predicts them at model construction. The group activity coefficients then follow from the closed-form mod. UNIFAC equations.
 
 ## Example
 ```julia

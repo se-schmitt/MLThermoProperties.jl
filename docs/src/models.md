@@ -48,7 +48,7 @@ MLThermoProperties.GRAPPA
 
 ## COGNAC
 
-COGNAC (local-COmposition Graph Neural network for the prediction of Activity Coefficients) predicts the group parameters of a UNIFAC model with a graph neural network instead of taking them from a fitted table [hoffmann_cognac_2026](@cite).
+COGNAC (local-COmposition Graph Neural network for the prediction of Activity Coefficients) predicts the group parameters of a UNIFAC model with a graph neural network instead of taking them from a fitted table [hoffmann_learning_2026](@cite).
 In contrast to group-based UNIFAC, COGNAC treats every atom as its own group.
 Since the group table depends on the mixture, it is predicted at model construction and is valid only for that set of components.
 Symmetry-equivalent atoms of a molecule (e.g., the two hydrogens of water, the six carbons of benzene) form one group counted by ``\nu_{ki}``, just as mod. UNIFAC counts, e.g., "2 × CH3".
