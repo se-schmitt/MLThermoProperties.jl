@@ -12,10 +12,15 @@
 
 \begin{abstract}
 
-We present MLThermoProperties.jl, a Julia package that provides a variety of state-of-the-art thermodynamic models that combine modern machine learning methods with physical knowledge. 
-These hybrid models obey hard physical constraints while being more accurate and applicable to a wider scope of substances than established models. 
+Hybrid models combining physical knowledge with machine learning gain more and more interest for thermodynamic property prediction.
+They outperform classical models while being applicable to a much wider scope of chemicals.
+However, their application in engineering applications stays rare as they are often hardly accessible through unified programmatic interface.
+To close this gap, we present MLThermoProperties.jl, a Julia package that provides a variety of state-of-the-art hybrid models for thermodynamic property prediction.
+MLThermoProperties.jl includes hybrid models for pure component properties like the vapor pressure, mixture properties for predicting phase equilibria, and transport properties.
+All models only require the SMILES codes of the molecules as input which makes them applicable to nearly all chemical systems in principle.
 MLThermoProperties.jl is built upon the Clapeyron.jl package, leveraging its rich thermodynamic solver ecosystem. 
 The MLThermoProperties.jl models signifi­cantly improve molecular property prediction in various applications in science and engineering, e.g., chemical process engineering, and can be coupled with Julia’s rich ecosystem for scientific modeling and simulation.
+This is demonstrated for a simple example here.
 
 \end{abstract}
 
@@ -26,21 +31,35 @@ However, experimental data on thermodynamic properties are notoriously scarce du
 In recent years, machine learning (ML) has emerged as a particularly promising approach to thermodynamic modeling \cite{hasse_artificial_2026}.
 
 These models, despite being developed using methods from machine learning, are thermodynamically consistent, i.e., they obey hard physical constraints.
-This consistency is either achieved by an appropriate architecture \cite{specht_hanna_2024-1,hoffmann_machine-learned_2025} or by exploiting existing thermodynamic models to form new hybrid models \cite{wagner_hybrid_2026, hayer_advancing_2025,hoffmann_grappahybrid_2025}.
+This consistency is either achieved by an appropriate architecture \cite{specht_hanna_2024-1,hoffmann_machine-learned_2025} or by exploiting existing thermodynamic models to form new hybrid models \cite{wagner_hybrid_2026-1, hayer_advancing_2025,hoffmann_grappahybrid_2025}.
 Based only on the SMILES code of a substance \cite{weininger_smiles_1988} -- a textual representation of the molecular structure -- the MLPROP models predict multiple thermodynamic properties, outperforming established models in both accuracy and scope \cite{hoffmann_machine-learned_2025}.
-Among the covered properties are phase equilibria of pure substances and mixtures \cite{specht_hanna_2024}, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026} that govern molecular mass transfer.
-The models utilize different ML architectures, including the chemical language model ChemBERTa \cite{ahmad_chemberta-2_2022} and molecular graph neural networks.
+Among the covered properties are phase equilibria of pure substances and mixtures \cite{specht_hanna_2024}, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026-1} that govern molecular mass transfer.
 
-In Julia, a rich ecosystem for thermodynamics and chemical engineering already exists. `Clapeyron.jl` \cite{walker_clapeyronjl_2022}, a mature and comprehensive thermodynamic package, is a central part of this ecosystem. It combines a large number of thermodynamic models (including equations of state (EoS) and Gibbs excess energy ($g^E$) models) with advanced and efficient solvers. Leveraging Julia's excellent extensibility, several packages extend `Clapeyron.jl`, e.g., `EntropyScaling.jl` \cite{schmitt_se-schmittentropyscalingjl_2025} for modeling transport properties, or \href{https://github.com/ClapeyronThermo/Langmuir.jl}{`Langmuir.jl`} \cite{santana_langmuirjl_nodate} for modeling adsorption.
+Most hybrid models use a chemical representation method to encode the chemical information numerically. 
+Therefore, several techniques exist.
+Often applied chemical representation methods are chemical language models and molecular graph neural networks (GNNs). 
+Chemical language models are language models operating on the SMILES string, which are pretrained on molecular properties. 
+They deliver a molecular embedding as output which can, without retraining, be used as input for hybrid thermodynamic models (the prediction heads
+Examples for chemical langua models are ChemBERTa \cite{ahmad_chemberta-2_2022} or SMI-TED \cite{soares_open-source_2025}.
+A different approach is used by molecular graph neural networks \cite{wieder_compact_2020}.
+Here, the molecular structure is encoded in a GNN which is then trained together with the prediction heads directly on the thermophysical properties.
+This directly encodes the molecular structure in the architecture of the machine learning model.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.4\columnwidth]{logo.pdf}
-\caption{Logo of `MLThermoProperties.jl`.}
-\label{fig:logo}
-\end{figure}
+In Julia, a rich ecosystem for thermodynamics and chemical engineering already exists. 
+`Clapeyron.jl` \cite{walker_clapeyronjl_2022}, a mature and comprehensive thermodynamic package, is a central part of this ecosystem. It combines a large number of thermodynamic models (including equations of state (EoS) and Gibbs excess energy ($g^E$) models) with advanced and efficient solvers. Leveraging Julia's excellent extensibility, several packages extend `Clapeyron.jl`, e.g., `EntropyScaling.jl` \cite{schmitt_se-schmittentropyscalingjl_2025} for modeling transport properties, or \href{https://github.com/ClapeyronThermo/Langmuir.jl}{`Langmuir.jl`} \cite{santana_langmuirjl_nodate} for modeling adsorption.
 
-This paper introduces `MLThermoProperties.jl`, which provides Julia implementations of hybrid thermodynamic models, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. `MLThermoProperties.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models. Due to the excellent extensibility of Julia packages, `MLThermoProperties.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization, e.g., `ModelingToolkit.jl` and `DifferentialEquations.jl`.
+This paper introduces `MLThermoProperties.jl`, which provides Julia implementations of hybrid thermodynamic models, based on `Clapeyron.jl` -- enabling the prediction of thermodynamic properties for any substance in Julia. 
+`MLThermoProperties.jl` not only provides implementations of existing models, but also serves as a central anchor point for the development of new models.
+Due to the excellent extensibility of Julia packages, `MLThermoProperties.jl` substantially broadens the capabilities for modeling chemical processes, based on state-of-the-art molecular property prediction. 
+The individual models are presented and their integration into the existing thermodynamic ecosystem is explained. 
+Additionally, illustrative applications of these models in chemical process simulations are showcased using packages from the wider scientific-modeling ecosystem in Julia, particularly from the SciML organization.
+
+% \begin{figure}[t]
+% \centering
+% \includegraphics[width=0.4\columnwidth]{logo.pdf}
+% \caption{Logo of `MLThermoProperties.jl`.}
+% \label{fig:logo}
+% \end{figure}
 
 % \section{Hybrid Thermodynamic Models}
 
@@ -52,36 +71,95 @@ This integration simplifies the implementation of new models and enables making 
 \subsection{Models}
 
 All currently implemented models were developed under the umbrella of MLPROP \cite{hoffmann_mlprop_2025}.
-The following models are currently implemented and validated against their original publication:
+`MLThermoProperties.jl` includes models for pure component properties (see section~\ref{sec:pure}), liquid mixture properties, i.e. $g^{\rm E}$ models (see section~\ref{sec:mix}), and transport properties (see section~\ref{sec:transport}).
+Additionally, chemical language models are implemented in the sub-pacakge `ChemBERTa` (see section~\ref{sec:language}).
+An overview of all model classes and models is given in Figure~\ref{fig:overview}.
+The package is constantly extended with new models.
+For a up-to-date list, see the \href{https://se-schmitt.github.io/MLThermoProperties.jl/stable/models}{documentation}.
 
-\begin{description}
-    \item[HANNA] Hard-constraint neural network for the excess Gibbs energy $g^E$ of liquid mixtures, from which activity coefficients are obtained in a thermodynamically consistent manner \cite{specht_hanna_2024-1}. Only the SMILES of the components and the temperature are required as input. Two versions are available: `ogHANNA`, the original model for binary mixtures \cite{specht_hanna_2024-1}, and `HANNA` (alias `multHANNA`), which is trained on VLE and LLE data and applicable to multi-component mixtures \cite{hoffmann_thermodynamically_2026}.
-    \item[UNIFAC 2.0] Machine-learning-enhanced versions of the group-contribution methods UNIFAC and mod. UNIFAC (Dortmund) for predicting activity coefficients \cite{hayer_advancing_2025,hayer_modified_2025}. Missing group-interaction parameters are completed by matrix completion, which extends the applicability and accuracy of the methods. Both are implemented directly in `Clapeyron.jl`.
-    \item[GRAPPA] Graph neural network for the vapor pressure of pure components, predicting the parameters of the Antoine equation and thereby also boiling points \cite{hoffmann_grappahybrid_2025}. The SMILES of the component is the only input.
-    \item[ESE] Hybrid model for binary diffusion coefficients at infinite dilution that incorporates the Stokes-Einstein equation, ensuring a physically consistent temperature dependence \cite{wagner_hybrid_2026}. It requires the SMILES of solute and solvent as well as a viscosity model for the solvent.
-    \item[ChemBERTa] Chemical language model that encodes a SMILES into a molecular embedding \cite{ahmad_chemberta-2_2022}, which serves as molecular input representation in HANNA. It is provided by the registered package `ChemBERTa.jl` and can also be used independently.
-\end{description}
+\begin{figure*}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{overview.pdf}
+\caption{Overview of the model classes and models in MLThermoProperties.jl and its sub-package ChemBERTa.jl, and the packages whose property functions they extend.}
+\label{fig:overview}
+\end{figure*}
+
+\subsubsection{Pure component models} \label{sec:pure}
+
+GRAPPA is a hybrid GNN for the prediction vapor pressure of pure components, trained on experimental data of about 25,000 components \cite{hoffmann_grappahybrid_2025}.
+A graph attention network encodes the molecular graph derived from the SMILES, the only input, and a prediction head yields the parameters of the Antoine equation, from which vapor pressures and boiling points follow at any temperature.
+Self-diffusion coefficients of pure components are covered by ESE (see section~\ref{sec:transport}).
+
+\subsubsection{Mixture models} \label{sec:mix}
+
+The implemented $g^{\rm E}$ models follow two hybridization strategies \cite{hasse_artificial_2026}: physical constraints are either hard-coded into the architecture of a flexible neural network, or machine learning is used to predict the parameters of an established physical model.
+All of them provide activity coefficients, from which vapor-liquid equilibria (VLE) can be calculated in combination with a vapor pressure model (e.g., GRAPPA), as well as liquid-liquid equilibria (LLE) and excess properties such as the excess enthalpy $h^{\rm E}$.
+
+HANNA follows the first strategy: it is a hard-constraint neural network that predicts the excess Gibbs energy $g^{\rm E}$ from the SMILES of the components, the temperature, and the composition \cite{specht_hanna_2024-1}.
+Pure-component embeddings from ChemBERTa-2 (see section~\ref{sec:language}) are processed by a permutation-invariant deep-set architecture, and the output is corrected such that the pure-component limits are fulfilled; the activity coefficients follow by automatic differentiation and thus obey the Gibbs-Duhem equation by construction.
+Two versions are available: \texttt{ogHANNA}, the original model trained on activity coefficients in binary mixtures \cite{specht_hanna_2024-1}, and \texttt{HANNA} (alias \texttt{multHANNA}), which is additionally trained on LLE data and excess enthalpies and extended to multi-component mixtures by a geometric projection method \cite{hoffmann_thermodynamically_2026}.
+As the neural network is part of the $g^{\rm E}$ model itself, it has to be evaluated at every state point.
+
+UNIFAC 2.0 and mod. UNIFAC 2.0 follow the second strategy and retain the equations of the group-contribution methods UNIFAC and mod. UNIFAC (Dortmund) and only replace their parameter tables \cite{hayer_advancing_2025,hayer_modified_2025}.
+A matrix completion method predicts all pair-interaction parameters between the structural groups, including those missing in the published tables, and is trained end-to-end on experimental activity coefficients (and excess enthalpies for mod. UNIFAC 2.0) from the Dortmund Data Bank.
+This considerably extends the applicability and improves the accuracy compared to the original versions.
+Both UNIFAC models are implemented directly in \texttt{Clapeyron.jl} as this only requires new parameter tables.
+
+COGNAC also follows the second strategy, using a GNN to predict the parameters of the local-composition framework of mod. UNIFAC for individual atoms instead of predefined structural groups \cite{hoffmann_learning_2026}.
+A message-passing neural network encodes each atom together with its molecular neighborhood, from which two prediction heads yield atomic volume and surface-area parameters as well as interaction parameters for every atom pair.
+These parameters enter the unchanged mod. UNIFAC equations, so that thermodynamic consistency is guaranteed and the neural network has to be evaluated only once per set of components rather than at every state point.
+COGNAC was trained on about 820,000 experimental data points comprising VLE, LLE, solid-liquid equilibria (SLE), activity coefficients at infinite dilution, and excess enthalpies.
+
+\subsubsection{Transport models} \label{sec:transport}
+
+Both transport models are based on the Stokes-Einstein (SE) equation, whose prediction is multiplied by a positive scaling factor obtained from a neural network that takes molecular descriptors derived from the SMILES as input.
+As the scaling factor does not depend on temperature, the physically consistent temperature dependence of the SE equation is retained.
+
+ESE (Enhanced Stokes-Einstein) predicts diffusion coefficients $D_{ij}^\infty$ of a solute $i$ at infinite dilution in a pure solvent $j$ \cite{wagner_hybrid_2026-1}.
+The only inputs are the SMILES of solute and solvent and the solvent viscosity at the temperature of interest, which can be provided by any viscosity model of EntropyScaling.jl.
+Choosing the solute as solvent ($j=i$) yields the self-diffusion coefficient of the pure component.
+
+HADES extends ESE to composition-dependent self-diffusion coefficients in liquid mixtures with any number of components, covering the entire range from infinite dilution to the pure components \cite{wagner_composition-dependent_2026}.
+The descriptors of the solvent components are aggregated by an equivariant deep-set model, which ensures invariance with respect to their permutation, and the viscosity of the mixed solvent is obtained by logarithmic mixing of the pure-component viscosities.
+HADES was trained on 2,526 experimental data points for 600 systems; besides the SMILES, only the pure-component viscosities are required as input.
+
+\subsubsection{Chemical language models} \label{sec:language}
+
+In ChemBERTa.jl, two language models are available: ChemBERTa \cite{ahmad_chemberta-2_2022} and SMI-TED \cite{soares_open-source_2025}.
+ChemBERTa-2 is a BERT-type transformer that was pretrained on the SMILES of 77 million molecules from PubChem by regression of molecular descriptors \cite{ahmad_chemberta-2_2022}.
+ChemBERTa.jl provides the variant used in HANNA, whose tokenizer was fixed by Specht et al. \cite{specht_hanna_2024-1}; the embedding of the classification token of the last layer serves as a 384-dimensional representation of the molecule.
+Before tokenization, the SMILES are canonicalized with RDKit, either via RDKitMinimalLib.jl or via PythonCall.jl.
+SMI-TED is a transformer-based encoder-decoder foundation model with 289 million parameters that was pretrained on 91 million curated SMILES from PubChem by masked token prediction and reconstruction of the SMILES from its latent space \cite{soares_open-source_2025}.
+The encoder condenses the token embeddings into a fixed-size latent representation of the molecule, which, owing to the reconstruction objective, separates molecules according to chemically relevant features and serves as molecular embedding.
+The decoder, a non-autoregressive feed forward decoder, can be used to generate a SMILES from a given embedding.
+Both models are implemented natively in Julia based on Lux.jl in the registered sub-package ChemBERTa.jl, which can also be used independently, e.g., as molecular input representation for new hybrid models.
 
 \subsection{Integration in Julia's Thermodynamic Ecosystem}
 
-All models are implemented by extending a property function from 
-Clapeyron.jl or EntropyScaling.jl and making use of existing thermodynamic solvers.
+All models are implemented by extending a property function from Clapeyron.jl or EntropyScaling.jl and making use of existing thermodynamic solvers.
 This is exemplarily explained for the \texttt{HANNA} model and the \texttt{ESE} model in the following.
-For the Gibbs excess energy model \texttt{HANNA}, a custom function \texttt{Clapeyron.excess\_gibbs\_free\_energy(model::HANNA,p,T,z)} is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Ref. \cite{hoffmann_machine-learned_2025}).
+For the Gibbs excess energy model \texttt{HANNA}, a custom function is defined which calculates the Gibbs excess energy $G^E$ through a neural network (see Code~\ref{lst:integration_hanna}).
 This is the only thermodynamic property that needs to be defined.
 Derived quantities like the activity coefficients $\gamma_i$ and the excess enthalpy $H^E$ can be calculated based on the HANNA model by Clapeyron's property functions, i.e. \texttt{Clapeyron.activity\_coefficient(model::HANNA,p,T,z)} and \texttt{Clapeyron.excess(model::HANNA,p,T,z,enthalpy)}, without further ado.
-This exploits the relation between those properties which can be calculated as derivations of $G^E$, i.e. 
+This exploits the universal thermodynamic relations between those properties which can be calculated as derivations of $G^E$, i.e. 
 
 \begin{align}
 \ln \gamma_i &= \frac{1}{RT} \left(\frac{\partial G^E}{\partial n_i}\right)_{T,p,n_{j\neq i}} \\
 H^E &= -RT^2 \left(\frac{\partial \left(G^E/RT\right)}{\partial T}\right)_{p,\bm{n}}.
 \end{align}
 
-The derivatives are evaluated by automatic differentiation, so no analytical expressions have to be supplied.
-Note that the excess enthalpy is calculated as a mixing property, i.e., the pure-component model passed via the \texttt{puremodel} keyword must provide residual properties; a cubic EoS such as \texttt{PR} is sufficient.
+These universal thermodynamic relations are already implemented in Clapeyron.jl. 
+The required derivatives are evaluated by automatic differentiation.
+
+\lstinputlisting[
+    language = Julia,
+    numbers=left,
+    label={lst:integration_hanna},
+    caption={Simplified code for integrating HANNA \cite{specht_hanna_2024-1} in Clapeyron.jl.}
+]{examples/integration_hanna.jl}
 
 The \texttt{ESE} model follows the same principle, but extends \texttt{EntropyScaling.jl} instead.
-The only method implemented evaluates the Stokes-Einstein equation corrected by a factor $b_{ij}$, which a neural network ensemble predicts from molecular descriptors of solute $i$ and solvent $j$ \cite{wagner_hybrid_2026}, i.e.
+The only method implemented evaluates the Stokes-Einstein equation corrected by a factor $b_{ij}$, which a neural network ensemble predicts from molecular descriptors of solute $i$ and solvent $j$ \cite{wagner_hybrid_2026-1}, i.e.
 
 \begin{equation}
 D_{ij}^\infty = b_{ij}\,\frac{k_\mathrm{B}T}{6\pi\,\eta_j(p,T)\,r_i}
@@ -92,48 +170,15 @@ Since $b_{ij}$ depends on the components only, it is evaluated once when the mod
 The solvent viscosity $\eta_j$ is obtained by calling \texttt{EntropyScaling.viscosity(model,p,T)} on a viscosity model supplied by the user, so that any model of \texttt{EntropyScaling.jl} can be combined with \texttt{ESE}, e.g., a substance-specific reference correlation (\texttt{RefpropRES}), a group-contribution entropy scaling model (\texttt{GCES}), or a constant experimental viscosity (\texttt{ConstantModel}).
 Based on this single method, \texttt{EntropyScaling.inf\_diffusion\_coefficient} is readily available for \texttt{ESE}, returning the diffusion coefficients of all component pairs or of an individual solute-solvent pair.
 
-\subsection{Extending the Package}
-
-The same mechanism is the intended way to add new models.
-Listing \ref{lst:newmodel} shows a complete minimal $g^E$ model: a struct holding the components, the model parameters, and the pure-component models, together with a single method for the excess Gibbs energy.
-Nothing else is required -- activity coefficients, excess properties, and phase equilibria are immediately available through the property functions and solvers of Clapeyron.jl.
-In the models of MLThermoProperties.jl, the parameters are the weights of a neural network and the returned expression is its forward pass, but the interface is the same.
-
 \lstinputlisting[
     language = Julia,
     numbers=left,
-    label={lst:newmodel},
-    caption={A minimal $g^E$ model extending Clapeyron.jl.}
-]{examples/new_model.jl}
+    label={lst:integration_hanna},
+    caption={Simplified code for integrating ESE \cite{wagner_hybrid_2026-1}in EntropyScaling.jl.}
+]{examples/integration_ese.jl}
 
-\subsection{Validation and Performance}
-
-All models are validated against the reference implementations of the original publications in the test suite of the package, which calls the original Python code through PythonCall.jl.
-For HANNA, the activity coefficients of the Julia and the Python implementation agree within a maximum relative deviation of $1.4 \cdot 10^{-6}$ over the tested systems; the Antoine parameters predicted by GRAPPA agree with the published values within a relative tolerance of $10^{-4}$.
-The residual deviations are of the order of the single-precision arithmetic used in the neural networks.
-
-Table \ref{tab:timings} lists execution times of typical calls for the binary system tetrachloromethane + \textit{tert}-butanol at 298.15 K.
-The cost of the graph neural network of GRAPPA is paid once when the model is constructed, since it predicts the Antoine parameters of the pure components; every subsequent vapor-pressure evaluation is then a simple correlation.
-The evaluation of HANNA, in contrast, enters every solver iteration and accounts for roughly half of the time of a bubble-point calculation.
-With about one millisecond per bubble point, the models are fast enough to be called inside iterative flowsheet solvers or the right-hand side of a differential equation.
-
-\begin{table}[t]
-\centering
-\caption{Execution times of typical calls for the system tetrachloromethane + \textit{tert}-butanol at 298.15 K with HANNA and GRAPPA, measured on an Intel Core Ultra 5 235U with Julia 1.13.}
-\label{tab:timings}
-\begin{tabular}{ll}
-\hline
-Call & Time \\
-\hline
-Excess Gibbs energy $G^E$ & 245 $\mu$s \\
-Activity coefficients $\gamma_i$ & 577 $\mu$s \\
-Excess enthalpy $H^E$ & 467 $\mu$s \\
-Vapor pressure $p^{\mathrm{s}}$ (GRAPPA) & 0.1 $\mu$s \\
-Bubble pressure & 1.2 ms \\
-Model construction (once) & 53 ms \\
-\hline
-\end{tabular}
-\end{table}
+The syntax to construct the models follows Clapeyron.jl's and EntropyScaling.jl's syntax closely.
+Existing models from both packages can be used in combination with the new hybrid models, e.g., the $g^{\rm E}$ models can be used with any pure component model (defined through the keyword argument \texttt{puremodel}), and in ESE a viscosity model can be used that directly enables the prediction of the temperature dependency. 
 
 \section{Example Application}
 
@@ -157,65 +202,66 @@ The resulting phase diagram is shown in Figure \ref{fig:pxy}.
     numbers=left,
     label={lst:pxy},
     caption={Calculation of the $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at 298.15 K with HANNA and GRAPPA.}
-]{examples/pxy_diagram.jl}
+]{examples/example_hanna.jl}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{examples/pxy_diagram.pdf}
+\includegraphics[width=\columnwidth]{examples/fig_hanna.pdf}
 \caption{Predicted $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, obtained with HANNA (activity coefficients) and GRAPPA (pure-component vapor pressures).}
 \label{fig:pxy}
 \end{figure}
 
 \subsection{Diffusion Coefficients}
 
-Transport properties are accessed in the same way, but through EntropyScaling.jl.
-Listing \ref{lst:ese} computes the diffusion coefficients at infinite dilution of ethanol in \textit{n}-decane and of \textit{n}-decane in ethanol between 280 K and 340 K.
-The \texttt{ESE} model is again built from the component names alone; the solvent viscosity required by the Stokes-Einstein equation is taken from the default \texttt{RefpropRES} correlations, which can be exchanged for a group-contribution model or a constant experimental value through the \texttt{vismodel} keyword.
+Transport properties are accessed through EntropyScaling.jl.
+Code \ref{lst:ese} computes the diffusion coefficients at infinite dilution of ethanol in \textit{n}-decane and of \textit{n}-decane in ethanol between 280 K and 340 K.
+The \texttt{ESE} model is again built from the component names alone; the solvent viscosity required by the Stokes-Einstein equation is calculated from the default \texttt{RefpropRES} correlations.
+Alternatively, other \texttt{EntropyScaling.jl} models, e.g., group-contribution models or simply constant viscosity, can be used by passing them via the \texttt{vismodel} keyword.
 The two curves in Figure \ref{fig:diff} differ by about one order of magnitude, which reflects the different viscosities of the two solvents.
 
 \lstinputlisting[
     language = Julia,
     numbers=left,
     label={lst:ese},
-    linerange={1-11},
-    caption={Diffusion coefficients at infinite dilution in the system ethanol + \textit{n}-decane with ESE (plotting omitted).}
-]{examples/diffusion_coefficients.jl}
+    % linerange={1-11},
+    caption={Diffusion coefficients at infinite dilution in the system ethanol + \textit{n}-decane with ESE.}
+]{examples/example_ese.jl}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{examples/diffusion_coefficients.pdf}
+\includegraphics[width=\columnwidth]{examples/fig_ese.pdf}
 \caption{Predicted diffusion coefficients at infinite dilution of ethanol in \textit{n}-decane and of \textit{n}-decane in ethanol at $p = 1$ bar, obtained with ESE and the \texttt{RefpropRES} viscosity correlations.}
 \label{fig:diff}
 \end{figure}
 
-\subsection{Fitting Classical Models}
+% \subsection{Fitting Classical Models}
 
-Established process simulators expect the parameters of classical $g^E$ models rather than neural networks.
-The predictions of the ML models can therefore be condensed into such a model by a parameter fit.
-Listing \ref{lst:nrtl} fits the three parameters $\tau_{12}$, $\tau_{21}$, and $\alpha$ of the NRTL model \cite{renon_local_1968} to the activity coefficients predicted by HANNA for tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, minimizing
+% Established process simulators expect the parameters of classical $g^E$ models rather than neural networks.
+% The predictions of the ML models can therefore be condensed into such a model by a parameter fit.
+% Listing \ref{lst:nrtl} fits the three parameters $\tau_{12}$, $\tau_{21}$, and $\alpha$ of the NRTL model \cite{renon_local_1968} to the activity coefficients predicted by HANNA for tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K, minimizing
 
-\begin{equation}
-\mathcal{L} = \frac{1}{2K} \sum_{k=1}^{K} \sum_{i=1}^{2} \left( \ln \gamma_i^{\mathrm{NRTL}}\left(x_i^k, T\right) - \ln \gamma_i^{\mathrm{pred}}\left(x_i^k, T\right) \right)^2
-\end{equation}
+% \begin{equation}
+% \mathcal{L} = \frac{1}{2K} \sum_{k=1}^{K} \sum_{i=1}^{2} \left( \ln \gamma_i^{\mathrm{NRTL}}\left(x_i^k, T\right) - \ln \gamma_i^{\mathrm{pred}}\left(x_i^k, T\right) \right)^2
+% \end{equation}
 
-over $K = 21$ compositions.
-Both the ML model and NRTL are Clapeyron.jl models, so the same \texttt{activity\_coefficient} call serves both the prediction and the fit, and the optimizer is taken from Optim.jl \cite{mogensen_optim_2018}.
-The fit yields $\tau_{12} = 1.873$, $\tau_{21} = 0.447$, and $\alpha = 0.578$ and reproduces the predictions of HANNA within $0.021$ in $\ln \gamma_i$ (Figure \ref{fig:nrtl}).
+% over $K = 21$ compositions.
+% Both the ML model and NRTL are Clapeyron.jl models, so the same \texttt{activity\_coefficient} call serves both the prediction and the fit, and the optimizer is taken from Optim.jl \cite{mogensen_optim_2018}.
+% The fit yields $\tau_{12} = 1.873$, $\tau_{21} = 0.447$, and $\alpha = 0.578$ and reproduces the predictions of HANNA within $0.021$ in $\ln \gamma_i$ (Figure \ref{fig:nrtl}).
 
-\lstinputlisting[
-    language = Julia,
-    numbers=left,
-    label={lst:nrtl},
-    linerange={1-23},
-    caption={Fit of the NRTL model to activity coefficients predicted by HANNA (plotting omitted).}
-]{examples/nrtl_fit.jl}
+% \lstinputlisting[
+%     language = Julia,
+%     numbers=left,
+%     label={lst:nrtl},
+%     linerange={1-23},
+%     caption={Fit of the NRTL model to activity coefficients predicted by HANNA (plotting omitted).}
+% ]{examples/nrtl_fit.jl}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{examples/nrtl_fit.pdf}
-\caption{Logarithmic activity coefficients of tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K predicted by HANNA (symbols) and the fitted NRTL model (lines).}
-\label{fig:nrtl}
-\end{figure}
+% \begin{figure}[t]
+% \centering
+% \includegraphics[width=\columnwidth]{examples/nrtl_fit.pdf}
+% \caption{Logarithmic activity coefficients of tetrachloromethane (1) + \textit{tert}-butanol (2) at $T = 298.15$ K predicted by HANNA (symbols) and the fitted NRTL model (lines).}
+% \label{fig:nrtl}
+% \end{figure}
 
 \subsection{Chemical Process Simulation}
 
