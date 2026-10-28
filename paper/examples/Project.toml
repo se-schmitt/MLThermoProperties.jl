@@ -1,11 +1,18 @@
 [deps]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
+BatchDistillation = "1c514aaa-0bb0-4687-90b3-463ccf1688ea"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Clapeyron = "7c7805af-46cc-48c9-995b-ed0ed2dc909a"
 CoolProp = "e084ae63-2819-5025-826e-f8e611a84251"
 EntropyScaling = "36a13073-9e6e-4b19-b12b-cb530e79ee8e"
 MLThermoProperties = "5b10a24f-5c48-4ecd-8f3d-34970e95074b"
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 
 [sources]
-MLThermoProperties = {path = "../.."}
+BatchDistillation = {path = "/home/schmitts/.julia/dev/BatchDistillation"}
+Clapeyron = {rev = "master", url = "https://github.com/ClapeyronThermo/Clapeyron.jl.git"}
+MLThermoProperties = {rev = "main", url = "https://github.com/se-schmitt/MLThermoProperties.jl.git"}

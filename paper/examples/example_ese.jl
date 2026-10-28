@@ -10,12 +10,14 @@ D₁₂ = inf_diffusion_coefficient.(model, p, T;
 D₂₁ = inf_diffusion_coefficient.(model, p, T;
     solute="n-decane", solvent="ethanol")
 
+# Plotting ...
 fig = Figure(size=(400, 280), fontsize=14)
-ax = Axis(fig[1,1]; xlabel=L"T \;/\; \mathrm{K}",
-    ylabel=L"D^\infty \;/\; 10^{-9}\,\mathrm{m^2\,s^{-1}}")
+ylabel = L"D^\infty / 10^{-9}\mathrm{m^2 s^{-1}}"
+ax = Axis(fig[1,1]; xlabel=L"T / \mathrm{K}", 
+    ylabel)
 lines!(ax, T, D₁₂ .* 1e9; color=:blue,
     label="ethanol in n-decane")
 lines!(ax, T, D₂₁ .* 1e9; color=:red,
     label="n-decane in ethanol")
 axislegend(ax; position=:lt, framevisible=false)
-save(joinpath(@__DIR__, "diffusion_coefficients.pdf"), fig)
+save(joinpath(@__DIR__, "fig_ese.pdf"), fig)
