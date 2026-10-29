@@ -77,6 +77,19 @@ It only requires the SMILES of the solute and solvent as input, together with a 
 MLThermoProperties.ESE
 ```
 
+## HADES
+
+![](assets/schemes/HADES_scheme.svg)
+
+HADES (Hybrid Architecture for consistent Diffusion-coefficient Estimation across Solvents) is a hybrid model for predicting self-diffusion coefficients in liquid mixtures with an arbitrary number of components at any composition and temperature [wagner_comp_2026](@cite).
+It extends the ESE model by a deep-set neural network, which allows a unified description of diffusion at infinite dilution in pure and mixed solvents as well as self-diffusion at finite concentrations.
+Like ESE, the model incorporates the Stokes-Einstein equation, which ensures a physically consistent temperature dependence of the predicted diffusion coefficients.
+It only requires the SMILES of all components as input, together with viscosity models for the pure components.
+
+```@docs
+MLThermoProperties.HADES
+```
+
 ## Other Models
 
 ### ChemBERTa.jl
