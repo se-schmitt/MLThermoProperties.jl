@@ -193,7 +193,7 @@ The resulting phase diagram is shown in Figure \ref{fig:pxy}.
     language = Julia,
     numbers=left,
     label={lst:pxy},
-    % linerange={1-18},
+    linerange={1-18},
     caption={Calculation of the $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at 298.15 K with HANNA and GRAPPA.}
 ]{examples/example_hanna.jl}
 
@@ -217,7 +217,7 @@ The two curves in Figure \ref{fig:diff} differ by about one order of magnitude, 
     numbers=left,
     label={lst:ese},
     float=htbp,
-    % linerange={1-13},
+    linerange={1-13},
     caption={Diffusion coefficients at infinite dilution in the system ethanol + \textit{n}-decane with ESE.}
 ]{examples/example_ese.jl}
 
@@ -264,7 +264,7 @@ The full script for the simulation is given in the supplementary material.
     numbers=left,
     label={lst:batch},
     % float=htbp, 
-    linerange={1-72}, 
+    linerange={1-79}, 
     caption={Batch distillation simulation.}
 ]{examples/example_batch_sim.jl} 
 
@@ -284,9 +284,11 @@ The models implemented here are also accessible through the MLPROP web interface
 
 \section*{Acknowledgements}
 
-[HIER NOCH ERGÄNZEN]
+The authors gratefully acknowledge financial support by the German Research Foundation (DFG) through the Emmy-Noether program (grant number 528649696), Priority Program SPP 2331 “Machine Learning in Chemical Engineering” (grant number 553345933), Priority Program SPP 2363 “Molecular Machine Learning” (grant number 497201843), and Research Training Group GRK 2908 “WERA” (grant number 503479768), and Germany's Federal Ministry of Economic Affairs and Energy within the project DiKey.
 
 \section*{Code availability}
+
+All examples are available as executable code at \href{https://github.com/se-schmitt/MLThermoProperties.jl/tree/paper}{github.com/se-schmitt/MLThermoProperties.jl/tree/paper}.
 
 \input{bib.tex}
 

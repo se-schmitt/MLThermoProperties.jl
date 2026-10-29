@@ -1,4 +1,3 @@
-## setup
 using Printf, Statistics, ADTypes, CairoMakie
 using ModelingToolkit, SciMLBase, OrdinaryDiffEq
 using Clapeyron, MLThermoProperties
@@ -37,7 +36,6 @@ x_charge  = [0.5, 0.3, 0.2] # reboiler charge
 nB   = 3.3      # mol, buffer holdup
 n_charge = 20   # mol, reboiler charge
 
-## run
 # create column
 @named col = Column(; fluid=model, N_stages)
 sys = mtkcompile(col)
@@ -73,12 +71,12 @@ _dryout = DiscreteCallback(
 )
 
 # solve
-sol = solve(prob, FBDF(; autodiff=AutoFiniteDiff()); callback=_dryout)
+solver = FBDF(; autodiff=AutoFiniteDiff())
+sol = solve(prob, solver; 
+    callback=_dryout
+)
 
-@info "solve finished" sol.retcode t_end_s=sol.t[end] n_reb_end=sol[sys.reb.nL][end]
-
-## Visualization of results
-
+# Plotting...
 t_min = sol.t ./ 60
 z = range(0, H_col, N_stages)
 T_sym = [sys.reb.T; [getproperty(sys, Symbol(:stage_, j)).T for j in 2:N_stages]]
