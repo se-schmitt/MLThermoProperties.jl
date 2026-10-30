@@ -1,4 +1,4 @@
-using Printf, Statistics, ADTypes, CairoMakie
+using Printf, Statistics, ADTypes
 using ModelingToolkit, SciMLBase, OrdinaryDiffEq
 using Clapeyron, MLThermoProperties
 using BatchDistillation
@@ -77,6 +77,9 @@ sol = solve(prob, solver;
 )
 
 # Plotting...
+using CairoMakie
+set_theme!(Axis=(xgridvisible=false, ygridvisible=false, xtickalign=1, ytickalign=1, xticksmirrored=true, yticksmirrored=true))
+
 t_min = sol.t ./ 60
 z = range(0, H_col, N_stages)
 T_sym = [sys.reb.T; [getproperty(sys, Symbol(:stage_, j)).T for j in 2:N_stages]]
@@ -85,9 +88,9 @@ cols_x = [:darkblue, :forestgreen, :orange]
 
 fig = Figure(size=(900, 400), fontsize=14)
 ax1 = Axis(fig[1,1]; limits=((0, t_min[end]), (0, 1)),
-    xlabel=L"t \; / \; \mathrm{min}", ylabel=L"x_i \; / \; \mathrm{mol\,mol^{-1}}")
+    xlabel=rich(rich("t"; font=:italic), " / min"), ylabel=rich(rich("x"; font=:italic), subscript("i"; font=:italic), " / mol mol", superscript("−1")))
 ax2 = Axis(fig[1,2]; limits=(nothing, (0, H_col)),
-    xlabel=L"T \; / \; \mathrm{K}", ylabel=L"z \; / \; \mathrm{m}")
+    xlabel=rich(rich("T"; font=:italic), " / K"), ylabel=rich(rich("z"; font=:italic), " / m"))
 for i in eachindex(components)
     lines!(ax1, t_min, sol[sys.reb.x[i]]; color=cols_x[i])
     lines!(ax1, t_min, sol[sys.res.x[i]]; color=cols_x[i], linestyle=:dash)

@@ -1,4 +1,4 @@
-using MLThermoProperties, Clapeyron, CairoMakie
+using MLThermoProperties, Clapeyron
 
 comps = ["tetrachloromethane", "tert-butanol"]
 model = multHANNA(comps; puremodel=GRAPPA)
@@ -16,17 +16,26 @@ for (i, x) in enumerate(x₁)
 end
 
 # Plotting ...
+using CairoMakie, DataFrames, CSV
+set_theme!(Axis=(xgridvisible=false, ygridvisible=false, xtickalign=1, ytickalign=1, xticksmirrored=true, yticksmirrored=true))
+
+df = CSV.File(joinpath(@__DIR__, "VLE_tetrachloromethane_tert-butanol_exp.csv")) |> DataFrame
+
 fig = Figure(size=(400, 500), fontsize=14)
 ax1 = Axis(fig[1,1]; limits=((0,1), nothing),
     xticklabelsvisible=false,
-    ylabel=L"p / \mathrm{bar}")
+    ylabel=rich(rich("p"; font=:italic), " / bar"))
 ax2 = Axis(fig[2,1]; limits=((0,1), nothing),
-    xlabel=L"x_1,y_1 / \mathrm{mol\,mol^{-1}}",
-    ylabel=L"\ln \gamma_i")
-lines!(ax1, x₁, p; color=:blue, label="bubble")
-lines!(ax1, y₁, p; color=:red, label="dew")
-axislegend(ax1; position=:lt, framevisible=false)
-lines!(ax2, x₁, lnγ₁; color=:navy, label="γ₁")
-lines!(ax2, x₁, lnγ₂; color=:green, label="γ₂")
+    xlabel=rich(rich("x"; font=:italic), subscript("1"), ", ", rich("y"; font=:italic), subscript("1"), " / mol mol", superscript("−1")),
+    ylabel=rich("ln ", rich("γ"; font=:italic), subscript("i"; font=:italic)))
+lines!(ax1, x₁, p; color=:black)
+scatter!(ax1, df.x1, df.var"p / Pa" ./ 1e5; marker=:rect, color=(:white,0.0), strokecolor=:black, strokewidth=1, label="bubble")
+lines!(ax1, y₁, p; color=:black)
+scatter!(ax1, df.y1, df.var"p / Pa" ./ 1e5; marker=:circle, color=(:white,0.0), strokecolor=:black, strokewidth=1, label="dew")
+axislegend(ax1; position=:lt, framevisible=false, merge=true,
+    markerpoints=[Point2f(0.15, 0.5)], linepoints=[Point2f(0.45, 0.5), Point2f(1, 0.5)])
+lines!(ax2, x₁, lnγ₁; color=:blue, label=rich(rich("γ"; font=:italic), subscript("1")))
+lines!(ax2, x₁, lnγ₂; color=:red, label=rich(rich("γ"; font=:italic), subscript("2")))
 axislegend(ax2; position=:lt, framevisible=false)
 save(joinpath(@__DIR__, "fig_hanna.pdf"), fig)
+fig
