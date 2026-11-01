@@ -1,4 +1,4 @@
-[![Dev][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] [![Build Status][build-img]][build-url]
+[![Dev][docs-stable-img]][docs-stable-url] [![Dev][docs-dev-img]][docs-dev-url] [![Build Status][build-img]][build-url] [![Coverage][codecov-img]][codecov-url]
 
 <p>
   <picture>
@@ -91,6 +91,9 @@ Bug reports, questions, feature requests, and improvements are welcome. Please o
 
 [build-img]: https://github.com/se-schmitt/MLThermoProperties.jl/actions/workflows/CI.yml/badge.svg?branch=main
 [build-url]: https://github.com/se-schmitt/MLThermoProperties.jl/actions/workflows/CI.yml?query=branch%3Amain
+
+[codecov-img]: https://codecov.io/gh/se-schmitt/MLThermoProperties.jl/branch/main/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/se-schmitt/MLThermoProperties.jl
 
 [paper-img]: https://img.shields.io/badge/paper-general-blue.svg
 [paper-url]: https://doi.org/10.1002/cite.70004
