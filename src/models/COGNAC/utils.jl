@@ -1,5 +1,6 @@
 # Molecule graphs and group tables for COGNAC
 
+const COGNAC_ALLOWED_Z = [1, 5, 6, 7, 8, 9, 14, 15, 16, 17, 35, 53]
 const COGNAC_BOND_AROMATIC = 4
 
 # node feature vector of an explicit polar hydrogen: Z, degree, shifted charge, hyb, aromatic, nH
@@ -111,6 +112,10 @@ end
 function cognac_molgraph(mol, smiles::AbstractString)
     syms = MolecularGraph.atom_symbol(mol)
     z = MolecularGraph.atom_number(mol)
+    _z_notallowed = (!).(in.(z, Ref(MLThermoProperties.COGNAC_ALLOWED_Z)))
+    if any(_z_notallowed)
+        error("Element(s) [$(join(syms[_z_notallowed],','))] not allowed in COGNAC!")
+    end
     charges = MolecularGraph.atom_charge(mol)
     orders = copy(MolecularGraph.bond_order(mol))
     edgelist = collect(MolecularGraph.edges(mol))
