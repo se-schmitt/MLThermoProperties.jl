@@ -10,3 +10,4 @@ debug_*
 docs/build/
 docs/node_modules/
 docs/src/tutorials/*.md
+dist

@@ -32,7 +32,10 @@ makedocs(;
         devurl = "dev",
     ),
     pages = [
-        "Tutorials" => [title => "tutorials/$(slug).md" for (title, slug) in tutorials],
+        "Tutorials" => [
+            [title => "tutorials/$(slug).md" for (title, slug) in tutorials];
+            "Using from Python" => "python.md"
+        ],
         "Models" => "models.md",
         "References" => "references.md",
     ],
