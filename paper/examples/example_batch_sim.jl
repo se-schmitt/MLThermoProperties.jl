@@ -84,7 +84,7 @@ t_min = sol.t ./ 60
 z = range(0, H_col, N_stages)
 T_sym = [sys.reb.T; [getproperty(sys, Symbol(:stage_, j)).T for j in 2:N_stages]]
 t_snap = [0, 60, 90, 95, 100, 105].*60
-cols_x = [:grey75, :grey50, :grey25]
+cols_x = [:grey65, :grey45, :grey20]
 
 fig = Figure(size=(900, 400), fontsize=14)
 ax1 = Axis(fig[1,1]; limits=((0, t_min[end]), (0, 1)),
@@ -99,7 +99,7 @@ snap_pos = lift(ax1.scene.viewport, ax1.finallimits) do vp, lims
     Point2f.(vp.origin[1] .+ vp.widths[1] .* (t_snap./60 .- lims.origin[1]) ./ lims.widths[1], vp.origin[2] + vp.widths[2])
 end
 scatter!(fig.scene, snap_pos; marker='↓', color=t_snap, colormap=:darktest, colorrange=extrema(t_snap), markersize=20, marker_offset=(0, 9))
-Legend(fig[0,1],[[LineElement(color=c) for c in cols_x[1:length(components)]], [LineElement(color=:black), LineElement(color=:black, linestyle=:dash)]], [components, ["reboiler", "distillate"]], [nothing, nothing]; orientation=:horizontal, nbanks=2, framevisible=false)
+Legend(fig[0,1],[[LineElement(color=c) for c in cols_x[1:length(components)]], [LineElement(color=:black), LineElement(color=:black, linestyle=:dash)]], [replace.(components, "dimethylphthalate" => "dimethyl phthalate"), ["reboiler", "distillate"]], [nothing, nothing]; orientation=:horizontal, nbanks=2, framevisible=false)
 for tk in t_snap
     scatterlines!(ax2, sol(tk; idxs=T_sym), z; color=tk, colormap=:darktest, colorrange=extrema(t_snap), label=@sprintf("%.0f min", tk/60))
 end
