@@ -1,4 +1,4 @@
-title: "MLThermoProperties.jl: Hybrid Models for Thermodynamic Property Prediction in Julia"
+title: "MLThermoProperties.jl: Hybrid Models for Thermophysical Property Prediction in Julia"
 keywords:
   - Julia
   - Thermodynamics
@@ -13,7 +13,7 @@ authors:
   - name: Fabian Jirasek
     affiliation: 1
 affiliations:
-  - name: Laboratory of Engineering Thermodynamics (LTD), RPTU Kaiserslautern
+  - name: Laboratory of Engineering Thermodynamics (LTD), RPTU Kaiserslautern, Germany
     index: 1
 date: 17 August 2026
 bibliography: ref.bib
