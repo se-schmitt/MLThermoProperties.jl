@@ -20,20 +20,18 @@ The package includes hybrid models for thermodynamic pure-component and mixture 
 All models require only the SMILES of the molecules as input, making them applicable to a broad range of chemical systems.
 \texttt{MLThermoProperties.jl} is built on the \texttt{Clapeyron.jl} package, leveraging its rich thermodynamic solver ecosystem. The included hybrid models significantly improve thermophysical property prediction in various science and engineering applications (e.g., chemical process engineering) and can be coupled with Julia's ecosystem for scientific modeling and simulation. This is demonstrated here with several examples.
 
-
-
 \end{abstract}
 
 \section{Introduction}
 
 Knowledge of thermophysical properties of fluids is crucial in many fields of engineering and science, e.g., for developing new chemical and biotechnological processes, optimizing heat pumps, or designing carbon capture and storage technologies. 
 However, experimental data on thermophysical properties are notoriously scarce due to the high cost and effort of measurements, making reliable prediction models indispensable. 
-In recent years, machine learning (ML) has emerged as an interesting approach to thermodynamic modeling, with hybrid thermodynamic models that combine ML with physical knowledge being particularly promising \cite{hasse_artificial_2026}.
+In recent years, machine learning (ML) has emerged as an interesting approach to thermodynamic modeling, with hybrid thermodynamic models that combine ML with physical knowledge being particularly promising \cite{hasse_artificial_2026,jirasek_combining_2023}.
 
 Unlike purely data-driven ML models, hybrid models are thermodynamically consistent, i.e., they obey hard physical constraints, and enable robust extrapolation to unseen territory.
-The hybridization is achieved either through an appropriate ML model architecture \cite{specht_hanna_2024-1,hoffmann_machine-learned_2025} or by embedding ML models in existing thermodynamic models \cite{wagner_hybrid_2026-1, hayer_advancing_2025,hoffmann_grappahybrid_2025}.
-Based only on information on the molecular structure, the hybrid models predict thermophysical properties with unprecedented scope and accuracy \cite{hoffmann_machine-learned_2025}. 
-Among the covered properties are phase equilibria of pure substances and mixtures \cite{specht_hanna_2024-1}, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026-1} that govern molecular mass transfer.
+The hybridization is achieved either through an appropriate ML model architecture \cite{specht_hanna_2024-1,hoffmann_machine-learned_2025} or by embedding ML models in existing thermodynamic models \cite{wagner_hybrid_2026-1, hayer_advancing_2025,hoffmann_grappahybrid_2025,hayer_modified_2025}.
+Based only on information on the molecular structure, the hybrid models predict thermophysical properties with unprecedented scope and accuracy. 
+Among the covered properties are phase equilibria of pure substances and mixtures, which are central to chemical process design, as well as transport properties such as diffusion coefficients \cite{wagner_hybrid_2026-1,wagner_composition-dependent_2026} that govern molecular mass transfer.
 
 Most hybrid models use a chemical representation method to numerically encode the molecular structure information of the components of interest. Commonly used methods include chemical language models based on Transformer architectures and molecular graph neural networks (GNNs). 
 Chemical language models operate on SMILES \cite{weininger_smiles_1988} -- a textual representation of the molecular structure -- and are pretrained on readily available molecular properties.
@@ -61,12 +59,7 @@ We then demonstrate their use with three examples, ranging from phase equilibriu
 \label{fig:overview}
 \end{figure*}
 
-%\section{Package overview}
-
-%\texttt{MLThermoProperties.jl} implements several hybrid models and makes them accessible to the thermodynamic solvers from \texttt{Clapeyron.jl}.
-%This integration simplifies the implementation of new models and enables making use of the existing thermodynamic solvers already implemented in \texttt{Clapeyron.jl}. 
-
-\section{Models}
+\section{Models} \label{sec:models}
 
 \texttt{MLThermoProperties.jl} currently includes GRAPPA \cite{hoffmann_grappahybrid_2025} for pure-component vapor pressures, several hybrid excess Gibbs energy ($g^{\rm E}$) models for liquid mixtures, and two hybrid models for diffusion coefficients (cf.\ Figure~\ref{fig:overview}).
 The chemical language models required to generate the input of some of these models are provided by \texttt{ChemBERTa.jl}.
@@ -80,7 +73,7 @@ GRAPPA is a hybrid model for predicting the vapor pressure of pure components. I
 \subsection{Excess Gibbs energy models} \label{sec:mix}
 
 The implemented excess Gibbs energy $g^{\rm E}$ models follow the two hybridization strategies outlined above \cite{hasse_artificial_2026}: physical constraints are either hard-coded into the architecture of a flexible neural network, or ML is used to predict the parameters of an established physical model or to improve that model.
-These hybrid models provide activity coefficients, from which phase equilibria, including vapor-liquid (VLE, in combination with a vapor pressure model like GRAPPA), liquid-liquid (LLE), and solid-liquid equilibria (SLE), as well as other excess properties, such as the excess enthalpy $h^{\rm E}$.
+These hybrid models provide activity coefficients, from which phase equilibria can be calculated, including vapor-liquid (VLE, in combination with a vapor pressure model like GRAPPA), liquid-liquid (LLE), and solid-liquid equilibria (SLE, in combination with information on the melting temperature and enthalpies of fusion), as well as other excess properties, such as the excess enthalpy $h^{\rm E}$.
 
 HANNA follows the first strategy: it is a hard-constraint neural network that predicts $g^{\rm E}$ from the SMILES of the components, the temperature, and the composition \cite{specht_hanna_2024-1}.
 Pure-component embeddings from ChemBERTa-2 (see Section~\ref{sec:language}) are processed by a permutation-invariant deep-set architecture that ensures equivariance of the predicted activity coefficients, and the output is corrected to satisfy the pure-component limits; the activity coefficients are then obtained via automatic differentiation and thus obey the Gibbs-Duhem equation by construction.
@@ -145,11 +138,11 @@ GRAPPA could be replaced by any other pure-component model, e.g., a cubic EoS, w
 As shown in Figure~\ref{fig:pxy}, the VLE is qualitatively well described; the slight overestimation of the pressure results from slightly overestimated pure-component vapor pressures.
 
 \lstinputlisting[
-    language = Julia,
-    numbers=left,
-    label={lst:pxy},
-    linerange={1-18},
-    caption={Calculation of the $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at 298.15~K with HANNA and GRAPPA.}
+    language = Julia,
+    numbers=left,
+    label={lst:pxy},
+    linerange={1-18},
+    caption={Calculation of the $p$-$xy$ diagram of tetrachloromethane (1) + \textit{tert}-butanol (2) at 298.15~K with HANNA and GRAPPA.}
 ]{examples/example_hanna.jl}
 
 \begin{figure}[t]
@@ -166,12 +159,12 @@ The required solvent viscosities are obtained from the \texttt{ESFramework} mode
 As shown in Figure~\ref{fig:diff}, the predictions agree very well with the experimental data, including the temperature dependence, which results from both the SE equation and the viscosity model.
 
 \lstinputlisting[
-    language = Julia,
-    numbers=left,
-    label={lst:ese},
-    float=htbp,
-    linerange={1-13},
-    caption={Calculation of the diffusion coefficients at infinite dilution in the system \textit{n}-hexane (1) + benzene (2) with ESE.}
+    language = Julia,
+    numbers=left,
+    label={lst:ese},
+    float=htbp,
+    linerange={1-15},
+    caption={Calculation of the diffusion coefficients at infinite dilution in the system \textit{n}-hexane (1) + benzene (2) with ESE.}
 ]{examples/example_ese.jl}
 
 \begin{figure}
@@ -181,7 +174,7 @@ As shown in Figure~\ref{fig:diff}, the predictions agree very well with the expe
 \label{fig:diff}
 \end{figure}
 
-\subsection{Chemical process simulation}
+\subsection{Chemical process simulation} \label{sec:ex_process}
 
 As a more complex application example, the hybrid models are coupled with \texttt{ModelingToolkit.jl} \cite{ma_modelingtoolkit_2021}, a framework for symbolic-numeric equation-based modeling, to simulate a batch-distillation process.
 The column is described by the equilibrium-stage concept, in which each stage is modeled by the MESH equations, i.e., mass balances, phase equilibrium, summation conditions, and energy balance \cite{gorak_distillation_2014}.
